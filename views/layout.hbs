@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
-  {{!-- Alertify  --}}
+  {{!-- Alertify --}}
 
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
 
@@ -30,6 +30,14 @@
 
       background-color: red;
     }
+
+    body {
+      background-color: #E7EAED;
+    }
+
+    body::-webkit-scrollbar {
+      display: none;
+    }
   </style>
 </head>
 
@@ -40,7 +48,6 @@
   {{>user-header}}
   {{/if}}
   {{{body}}}
-
   {{!-- Clipboard --}}
   <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
   <script>
@@ -63,8 +70,10 @@
 
   {{!-- Ajax Jquery Library --}}
 
-  {{!-- <script src="/javascripts/script.js"></script> --}}
-  {{!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.8/xlsx.full.min.js"></script> --}}
+  {{!--
+  <script src="/javascripts/script.js"></script> --}}
+  {{!--
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.8/xlsx.full.min.js"></script> --}}
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="/javascripts/script.js"></script>
 </body>

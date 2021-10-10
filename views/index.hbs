@@ -1,15 +1,15 @@
-<section>
+<section  class="topContainer">
   <div class="container">
     <div class="row">
-      <div class="col-md-12 mt-5">
+      <div class="col-md-12 mt-5 headClass">
         <h4 class="text-center" style="font-weight: normal;">Search Account</h4>
-        <form class="justify-content-center"id="searchForm" action="/" method="GET">
+        <form class="justify-content-center" id="searchForm" action="/" method="GET">
           <div class="active-cyan-3 active-cyan-4 mb-4">
-            <input style=" border-color:lightgrey" class="form-control" id="search" name="search" type="text"
-              placeholder="Enter The Name" onkeyup="searchFunction()" value="" aria-label="Search" autofocus>
+            <input class="form-control shadow-none" id="search" name="search" type="text" placeholder="Enter The Name"
+              onkeyup="searchFunction()" value="" aria-label="Search" autofocus>
           </div>
-          <div class="text-center">
-            <button type="submit" style="color:white;" class="btn btn-success  ">Search</button>
+          <div class="text-center searchIcon">
+            <button type="submit" class=" btn">Search</button>
           </div>
 
       </div>
@@ -19,19 +19,24 @@
 </section>
 
 <section>
-  <div class="container mt-4">
-          {{#if accounts}}
+  <div class="container bodyClass mt-4">
+    {{#if accounts}}
     <div class="row">
 
       {{#each accounts}}
       <div class="col-md-3 p-3">
-        <div class="card" style="width: 17rem;height:13rem;border-color:#45EBA5">
+        <div class="card" style="width: 17rem;height:13rem;border-color:#FCFBF1">
           <div class="card-body">
-            <h5 class="card-title">{{this.Name}}</h5>
-            <h3 style="color:red;" class="card-subtitle mb-2">{{this.Number}}</h3>
-            <p class="card-text"> ₹ {{this.Denomination}}</p>
+            <h3 class="card-subtitle mb-2">{{this.Number}}</h3>
 
-            <button onclick="addToList('{{this.Number}}','{{this.Name}}','{{this.Denomination}}','{{this.default}}','{{this.CNumber}}')" class="btn btn-primary" id="addToList" role="button">Add To list</button>
+            <h4 class="card-title text-muted">{{this.Name}}</h4>
+            <div class="flex-base">
+              <h5 class="card-text"> ₹ {{this.Denomination}}</h5>
+
+              <button
+                onclick="addToList('{{this.Number}}','{{this.Name}}','{{this.Denomination}}','{{this.default}}','{{this.CNumber}}')"
+                class="btn" id="addToList" role="button"><span>+ </span>Add</button>
+            </div>
 
           </div>
         </div>
@@ -40,17 +45,99 @@
     </div>
     {{else}}
     <h2 class="text-center">{{status}}</h2>
-      {{/if}}
+    {{/if}}
   </div>
 </section>
 <style>
-.card-body > h5,h3{
-font-weight: normal;
+  .topContainer{
+    padding-top: 70px;
   }
-.card{
-  transition: all .2s ease-in-out;
-}
-.card:hover {
- transform: scale(1.1); 
- }
+  .bodyClass {
+    padding-top: 10px;
+  }
+
+  .card-body>h5,
+  h3 {
+    font-weight: normal;
+  }
+
+  .card:hover {
+    box-shadow: 0 0 11px rgba(33, 33, 33, 0.2);
+  }
+
+  #search {
+    border-radius: 20px;
+    border: 0 0 11px rgba(33, 33, 33, 0.2);
+  }
+
+  .searchIcon {
+    padding: 10px;
+  }
+
+  .searchIcon>button {
+    font-size: small;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1.5px solid #57C67F;
+    border-radius: 30px;
+    color: black;
+  }
+
+  .searchIcon>button:hover {
+    border: 1.5px solid transparent;
+    background-color: #57C67F;
+    color: white;
+  }
+
+  .flex-base {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .card-body>h4 {
+    font-weight: 400;
+    margin: 10px 0px;
+  }
+
+  .flex-base>h5 {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .flex-base>button {
+    margin-left: 70px;
+    font-size: small;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1.5px solid #57C67F;
+    border-radius: 30px;
+    margin-bottom: 5px;
+    color: black;
+  }
+
+  .flex-base>button:hover {
+    border: 1.5px solid transparent;
+    background-color: #57C67F;
+    color: white;
+  }
+
+  .flex-base>button>span {
+    margin-right: 5px;
+  }
+
+  .btn:focus,
+  .btn:active {
+    outline: none !important;
+    box-shadow: none;
+  }
+  .form-control:focus{
+    border: 1.5px solid rgb(112, 106, 106) !important;
+  }
 </style>

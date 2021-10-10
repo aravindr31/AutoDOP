@@ -5,7 +5,8 @@ const state={
 
 module.exports.connect=function(done){
 
-    const url = 'mongodb://localhost:27017'
+    // const url = 'mongodb://localhost:27017'
+    const url = `mongodb+srv://user:microsoft123@cluster0.bibqe.mongodb.net/accounts?retryWrites=true&w=majority`
     const dbname='accounts'
 
 

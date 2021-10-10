@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container addForm">
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             <form action="/addAccount" method="post" role="form" enctype="application/x-www-form-urlencoded">
@@ -6,7 +6,7 @@
                 <legend>Add Account Details</legend>
 
                                 <div class="form-group">
-                    <label for="Denomination">Refernce Number</label>
+                    <label for="Ref_Number">Refernce Number</label>
                     <input type="text" class="form-control" name="Ref_Number" id="Ref_Number"
                         >
                         <br>
@@ -30,8 +30,18 @@
                         >
                 </div>
                 <button type="submit" class="btn btn-primary">Add Account</button>
-                <a href="/" class="btn btn-primary">Cancel</a>
+                <a href="/" class="btn btn-danger">Cancel</a>
             </form>
         </div>
     </div>
 </div>
+<style>
+    .container{ 
+    width:40vw;
+    padding-top: 70px;
+
+    }
+    .addForm{
+        height: 100px;
+    }
+</style>

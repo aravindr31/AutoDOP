@@ -1,4 +1,4 @@
-<section>
+<section class="topContainer">
     <div class="container">
         <div class="row">
             <div class="col-md-12 mt-5">
@@ -10,32 +10,34 @@
                     <h4 class="text-right text-success" style="font-weight:normal">Total Records : {{this.count}}</h4>
                 </div>
                 <br>
-<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">Card Number</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body" id="cnumber">
- 
-        {{#each accounts}}
-       {{this.CNumber}}
-       <br>
-        {{/each}}
+                <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"
+                    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="staticBackdropLabel">Card Number</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body" id="cnumber">
 
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button style=" background-color:#00BBF0;color:white" id="copyText" class="btn" data-clipboard-action="copy" data-clipboard-target="#cnumber">Copy</button>
-      </div>
-    </div>
-  </div>
-</div>
-                <table class="table animated flipInX">
-                    <thead class="thead-dark">
+                                {{#each accounts}}
+                                {{this.CNumber}}
+                                <br>
+                                {{/each}}
+
+                            </div>
+                            <div class="modal-footer">
+                                {{!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> --}}
+                                <button style=" background-color:#00BBF0;color:white" id="copyText" class="btn"
+                                    data-clipboard-action="copy" data-clipboard-target="#cnumber">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <table class="table animated tableHead flipInX">
+                    <thead class="thead-dark ">
                         <tr>
 
                             <th style="text-align: center;" scope="col">Name</th>
@@ -46,7 +48,7 @@
                             <th style="text-align: center;" scope="col">R/A</th>
                             <th style="text-align: center;" scope="col"></th>
                             <th style="text-align: center;" scope="col">Remove from list</th>
-                            
+
                             <th></th>
 
                             <th></th>
@@ -61,17 +63,20 @@
                             <td style="text-align: center;">{{this.Denomination}}</td>
                             <td colspan="1" class="text-right ">
                                 <button onclick="rebateFunction('{{this.Number}}',1)" id="plusbtn"
-                                    class="btn btn-info mr-2">+</button></td>
+                                    class="btn btn-outline-success mr-2">+</button>
+                            </td>
                             <td class="text-center align-center {{this.Number}}" id="{{this.Number}}">{{this.Rebate}}
                             </td>
                             <td colspan="1" class="text-left ">
                                 <button onclick="rebateFunction('{{this.Number}}',-1)" id="minusbtn"
-                                    class="btn btn-info ml-2">-</button></td>
+                                    class="btn btn-outline-warning ml-2">-</button>
+                            </td>
                             <td style="text-align: center;">
                                 <button onclick="deleteFromList('{{this.Number}}')"
-                                    class="btn btn-danger">Delete</button></td>
+                                    class="btn btn-outline-danger"><h5>X</h5></button>
+                            </td>
 
- 
+
                         </tr>
                         {{/each}}
 
@@ -84,7 +89,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 mt-5">
-                <div class="input-group">
+                {{!-- <div class="input-group">
                     <div id="list" class="text-center">
                         <h5 onchange="genList(event)">
                             {{#each accounts}}
@@ -92,13 +97,13 @@
                             {{/each}}
                         </h5>
                     </div>
-                </div>
-                <div class="text-center">
-<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#staticBackdrop">
-  Copy Number
-</button>
+                </div> --}}
+                <div class="text-center mb-5">
+                    <button type="button" style=" background-color:#05386b;color:white" class="btn" data-toggle="modal" data-target="#staticBackdrop">
+                        Copy Number
+                    </button>
 
-                    <button onclick="genarateList()" class="btn btn-success" id="genarateBtn">Generate List</button>
+                    <button onclick="genarateList()" style=" background-color:#c3073f;color:white" class="btn " id="genarateBtn">Generate List</button>
                     <a href="/finish" style=" background-color:#45EBA5;color:white" class="btn ">Finish</a>
                 </div>
 
@@ -118,15 +123,54 @@
     }
 </script>
 <style>
+      .topContainer{
+    padding-top: 70px;
+  }
     .total {
         display: flex;
         justify-content: space-between;
     }
-    #list{
+
+    #list {
         background-color: white;
-        box-shadow: 
-        inset -10px 11px 8px -10px #CCC,
-        inset 10px -11px 8px -10px #CCC;
+        box-shadow:
+            inset -10px 11px 8px -10px #CCC,
+            inset 10px -11px 8px -10px #CCC;
         color: black;
-        }
+    }
+.tableHead{
+        border-collapse: collapse;
+        border-radius: 10px;
+        border-style: hidden; /* hide standard table (collapsed) border */
+        {{!-- box-shadow: 0 0 0 1px #666;   /* this draws the table border  */  --}}
+}
+.thead-dark{
+            border-collapse: collapse;
+        border-radius: 10px;
+    {{!-- border-radius: 10px; --}}
+}
+.btn-outline-warning{
+    font-size: large;
+    height: 42px;
+    width: 40px;
+    border-radius: 20px;
+}
+.btn-outline-success{
+          height: 40px;
+    width: 40px;
+    border-radius: 20px;  
+}
+.btn-outline-danger{
+        height: 40px;
+    width: 40px;
+    border-radius: 20px;
+}
+.modal-header{
+    border:none !important;
+    {{!-- padding: 5px; --}}
+}
+.modal-footer{
+    border:none !important;
+    padding: 5px;
+}
 </style>
