@@ -4,23 +4,71 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-import sys 
+import sys
 import time
+# from PIL import Image
+from pytesseract import *
+from cv2 import  *
+
 
 PATH = "C:\Program Files (x86)\chromedriver.exe"
 driver = webdriver.Chrome(PATH)
+pytesseract.tesseract_cmd=r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+def get_Captcha():
+    captcha = driver.find_element_by_id("IMAGECAPTCHA")
+    captcha.screenshot("currentCaptcha.png")
+    time.sleep(1)
+    img = cv2.imread("currentCaptcha.png")
+    img=get_greyscale(img)
+    textedCaptcha= ocr_core(img)
+
+    if ("o"or"O"or"0"or"1"or"l") in textedCaptcha:
+        driver.find_element_by_id("TEXTIMAGE").click()
+        time.sleep(1)
+        get_Captcha()
+    # else:    
+    return textedCaptcha
+
+def ocr_core(image):
+    text = pytesseract.image_to_string(image)
+    return text
+
+def get_greyscale(image):
+    return cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 
 driver.get("https://dopagent.indiapost.gov.in/")
 # print(driver.title)
-login = driver.find_element_by_id("AuthenticationFG.USER_PRINCIPAL")
-login.send_keys(sys.argv[1])
-login = driver.find_element_by_id("AuthenticationFG.ACCESS_CODE")
-login.send_keys(sys.argv[2])
-login = driver.find_element_by_id("VALIDATE_RM_PLUS_CREDENTIALS_CATCHA_DISABLED")
-login.click()
+def loginPage ():
+    login = driver.find_element_by_id("AuthenticationFG.USER_PRINCIPAL")
+    # login.send_keys(sys.argv[1])
+    login.send_keys("DOP.MI6855840100003")
+    login = driver.find_element_by_id("AuthenticationFG.ACCESS_CODE")
+    # login.send_keys(sys.argv[2])
+    login.send_keys("#87654321dr")
+    # time.sleep(2)
+
+    textedCaptcha = get_Captcha()
+    # time.sleep(3)
+    # print(textedCaptcha)
+    # submitbtn = driver.find_element_by_name("Action.VALIDATE_RM_PLUS_CREDENTIALS_CATCHA_DISABLED")
+    typeCaptcha = driver.find_element_by_id("AuthenticationFG.VERIFICATION_CODE")
+    typeCaptcha.send_keys(textedCaptcha)
+    # driver.quit()
+    # time.sleep(1)
+    # submitbtn.click()
+    # driver.find_element_by_xpath("//*[@id='VALIDATE_RM_PLUS_CREDENTIALS_CATCHA_DISABLED']").submit()
+    return
+
+loginPage()
+
+# time.sleep(3)
+# if (driver.find_element_by_link_text("Enter the characters that you see in the picture").size != 0):
+#     loginPage()
+
 try:
     accounts = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "Accounts"))
+        EC.presence_of_element_located((By.ID,"Accounts"))
     )
 except:
     driver.quit()
@@ -28,7 +76,8 @@ except:
 accounts.click()
 try:
     mainPage = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.LINK_TEXT, "Agent Enquire & Update Screen"))
+        EC.presence_of_element_located(
+            (By.LINK_TEXT, "Agent Enquire & Update Screen"))
     )
 except:
     driver.quit()
@@ -44,10 +93,11 @@ except:
 
 cash.click()
 
-fetchAccounts = driver.find_element_by_id("CustomAgentRDAccountFG.ACCOUNT_NUMBER_FOR_SEARCH")
-#print(sys[1])
+fetchAccounts = driver.find_element_by_id(
+    "CustomAgentRDAccountFG.ACCOUNT_NUMBER_FOR_SEARCH")
+# print(sys[1])
 stringNumber = sys.argv[3]
-accNumbers=list(map(str,stringNumber.split(',')))
+accNumbers = list(map(str, stringNumber.split(',')))
 # print(accNumbers)
 noOfAccounts = len(accNumbers)
 # print(noOfAccounts)
@@ -59,11 +109,13 @@ fetch.click()
 x = 0
 while x < noOfAccounts:
     if x == 10:
-        nextPage = driver.find_element_by_id("Action.AgentRDActSummaryAllListing.GOTO_NEXT__")
+        nextPage = driver.find_element_by_id(
+            "Action.AgentRDActSummaryAllListing.GOTO_NEXT__")
         nextPage.click()
 
     y = str(x)
-    selectAccount = driver.find_element_by_id("CustomAgentRDAccountFG.SELECT_INDEX_ARRAY[" + y + "]")
+    selectAccount = driver.find_element_by_id(
+        "CustomAgentRDAccountFG.SELECT_INDEX_ARRAY[" + y + "]")
     selectAccount.click()
     x += 1
 saveAccounts = driver.find_element_by_id("Button26553257")
@@ -77,7 +129,7 @@ except:
     driver.quit()
 # print("here")
 rebateString = sys.argv[4]
-rebate=list(map(int,rebateString.split(',')))
+rebate = list(map(int, rebateString.split(',')))
 
 # print(len(rebate))
 # print(rebate)
@@ -87,12 +139,15 @@ for m, n in zip(accNumbers, rebate):
     if n != 1:
 
         if p >= 10:
-            rebateNextPage = driver.find_element_by_id("Action.SelectedAgentRDActSummaryListing.GOTO_NEXT__")
+            rebateNextPage = driver.find_element_by_id(
+                "Action.SelectedAgentRDActSummaryListing.GOTO_NEXT__")
             rebateNextPage.click()
 
-        rebateNextAcc = driver.find_element_by_xpath("//input[@value='" + q + "']")
+        rebateNextAcc = driver.find_element_by_xpath(
+            "//input[@value='" + q + "']")
         rebateNextAcc.click()
-        rebateValue = driver.find_element_by_id("CustomAgentRDAccountFG.RD_INSTALLMENT_NO")
+        rebateValue = driver.find_element_by_id(
+            "CustomAgentRDAccountFG.RD_INSTALLMENT_NO")
         rebateValue.clear()
         rebateValue.send_keys(n)
         saveRebate = driver.find_element_by_id("Button11874602")
@@ -101,7 +156,8 @@ for m, n in zip(accNumbers, rebate):
         # print("came upto here")
         try:
             pay = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
+                EC.presence_of_element_located(
+                    (By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
             )
 
         except:
@@ -111,7 +167,8 @@ for m, n in zip(accNumbers, rebate):
 
     try:
         pay = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
+            EC.presence_of_element_located(
+                (By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
         )
 
     except:
@@ -121,7 +178,8 @@ pay.click()
 
 try:
     alertText = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, "//*[@id='MessageDisplay_TABLE']/div[2]"))
+        EC.presence_of_element_located(
+            (By.XPATH, "//*[@id='MessageDisplay_TABLE']/div[2]"))
     )
     genNumber = alertText.text[53:63]
     print(genNumber)
@@ -139,14 +197,16 @@ reports.click()
 
 try:
     cNumber = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "CustomAgentRDAccountFG.EBANKING_REF_NUMBER"))
+        EC.presence_of_element_located(
+            (By.ID, "CustomAgentRDAccountFG.EBANKING_REF_NUMBER"))
     )
 except:
     driver.quit()
 
 cNumber.send_keys(genNumber)
 
-status = Select(driver.find_element_by_id("CustomAgentRDAccountFG.INSTALLMENT_STATUS"))
+status = Select(driver.find_element_by_id(
+    "CustomAgentRDAccountFG.INSTALLMENT_STATUS"))
 
 status.select_by_value("SUC")
 
