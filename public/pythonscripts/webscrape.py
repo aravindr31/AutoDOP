@@ -14,6 +14,10 @@ from cv2 import  *
 PATH = "C:\Program Files (x86)\chromedriver.exe"
 driver = webdriver.Chrome(PATH)
 pytesseract.tesseract_cmd=r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+stringNumber = sys.argv[3]
+accNumbers = list(map(str, stringNumber.split(',')))
+rebateString = sys.argv[4]
+rebate = list(map(int, rebateString.split(',')))
 
 def get_Captcha():
     captcha = driver.find_element_by_id("IMAGECAPTCHA")
@@ -41,11 +45,11 @@ driver.get("https://dopagent.indiapost.gov.in/")
 # print(driver.title)
 def loginPage ():
     login = driver.find_element_by_id("AuthenticationFG.USER_PRINCIPAL")
-    # login.send_keys(sys.argv[1])
-    login.send_keys("DOP.MI6855840100003")
+    login.clear()
+    login.send_keys(sys.argv[1])
     login = driver.find_element_by_id("AuthenticationFG.ACCESS_CODE")
-    # login.send_keys(sys.argv[2])
-    login.send_keys("#87654321dr")
+    login.clear()
+    login.send_keys(sys.argv[2])
     # time.sleep(2)
 
     textedCaptcha = get_Captcha()
@@ -55,105 +59,115 @@ def loginPage ():
     typeCaptcha = driver.find_element_by_id("AuthenticationFG.VERIFICATION_CODE")
     typeCaptcha.send_keys(textedCaptcha)
     # driver.quit()
-    # time.sleep(1)
+    time.sleep(1)
     # submitbtn.click()
     # driver.find_element_by_xpath("//*[@id='VALIDATE_RM_PLUS_CREDENTIALS_CATCHA_DISABLED']").submit()
     return
 
-loginPage()
-
 # time.sleep(3)
 # if (driver.find_element_by_link_text("Enter the characters that you see in the picture").size != 0):
 #     loginPage()
+def accountsPage():
+    try:
+        accounts = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID,"Accounts"))
+        )
+    except:
+        driver.quit()
 
-try:
-    accounts = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID,"Accounts"))
-    )
-except:
-    driver.quit()
+    accounts.click()
+    try:
+        mainPage = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(
+                (By.LINK_TEXT, "Agent Enquire & Update Screen"))
+        )
+    except:
+        driver.quit()
 
-accounts.click()
-try:
-    mainPage = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located(
-            (By.LINK_TEXT, "Agent Enquire & Update Screen"))
-    )
-except:
-    driver.quit()
+    mainPage.click()
 
-mainPage.click()
+    try:
+        cash = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "absmiddle"))
+        )
+    except:
+        driver.quit()
 
-try:
-    cash = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "absmiddle"))
-    )
-except:
-    driver.quit()
+    cash.click()
 
-cash.click()
+    fetchAccounts = driver.find_element_by_id(
+        "CustomAgentRDAccountFG.ACCOUNT_NUMBER_FOR_SEARCH")
+    # print(sys[1])
+    # stringNumber = sys.argv[3]
+    # accNumbers = list(map(str, stringNumber.split(',')))
+    # print(accNumbers)
+    noOfAccounts = len(accNumbers)
+    # print(noOfAccounts)
+    for i in accNumbers:
+        fetchAccounts.send_keys(i, ",")
+    AccountNumbers = []
+    fetch = driver.find_element_by_id("Button3087042")
+    fetch.click()
+    x = 0
+    while x < noOfAccounts:
+        if x == 10:
+            nextPage = driver.find_element_by_id(
+                "Action.AgentRDActSummaryAllListing.GOTO_NEXT__")
+            nextPage.click()
 
-fetchAccounts = driver.find_element_by_id(
-    "CustomAgentRDAccountFG.ACCOUNT_NUMBER_FOR_SEARCH")
-# print(sys[1])
-stringNumber = sys.argv[3]
-accNumbers = list(map(str, stringNumber.split(',')))
-# print(accNumbers)
-noOfAccounts = len(accNumbers)
-# print(noOfAccounts)
-for i in accNumbers:
-    fetchAccounts.send_keys(i, ",")
-AccountNumbers = []
-fetch = driver.find_element_by_id("Button3087042")
-fetch.click()
-x = 0
-while x < noOfAccounts:
-    if x == 10:
-        nextPage = driver.find_element_by_id(
-            "Action.AgentRDActSummaryAllListing.GOTO_NEXT__")
-        nextPage.click()
+        y = str(x)
+        selectAccount = driver.find_element_by_id(
+            "CustomAgentRDAccountFG.SELECT_INDEX_ARRAY[" + y + "]")
+        selectAccount.click()
+        x += 1
+    saveAccounts = driver.find_element_by_id("Button26553257")
+    saveAccounts.click()
+    try:
+        pay = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
+        )
 
-    y = str(x)
-    selectAccount = driver.find_element_by_id(
-        "CustomAgentRDAccountFG.SELECT_INDEX_ARRAY[" + y + "]")
-    selectAccount.click()
-    x += 1
-saveAccounts = driver.find_element_by_id("Button26553257")
-saveAccounts.click()
-try:
-    pay = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
-    )
-
-except:
-    driver.quit()
+    except:
+        driver.quit()
 # print("here")
-rebateString = sys.argv[4]
-rebate = list(map(int, rebateString.split(',')))
+# rebateString = sys.argv[4]
+# rebate = list(map(int, rebateString.split(',')))
 
 # print(len(rebate))
 # print(rebate)
-p = 0
-for m, n in zip(accNumbers, rebate):
-    q = str(p)
-    if n != 1:
+def paymentPage():
+    p = 0
+    for m, n in zip(accNumbers, rebate):
+        q = str(p)
+        if n != 1:
 
-        if p >= 10:
-            rebateNextPage = driver.find_element_by_id(
-                "Action.SelectedAgentRDActSummaryListing.GOTO_NEXT__")
-            rebateNextPage.click()
+            if p >= 10:
+                rebateNextPage = driver.find_element_by_id(
+                    "Action.SelectedAgentRDActSummaryListing.GOTO_NEXT__")
+                rebateNextPage.click()
 
-        rebateNextAcc = driver.find_element_by_xpath(
-            "//input[@value='" + q + "']")
-        rebateNextAcc.click()
-        rebateValue = driver.find_element_by_id(
-            "CustomAgentRDAccountFG.RD_INSTALLMENT_NO")
-        rebateValue.clear()
-        rebateValue.send_keys(n)
-        saveRebate = driver.find_element_by_id("Button11874602")
-        saveRebate.click()
-        time.sleep(3)
-        # print("came upto here")
+            rebateNextAcc = driver.find_element_by_xpath(
+                "//input[@value='" + q + "']")
+            rebateNextAcc.click()
+            rebateValue = driver.find_element_by_id(
+                "CustomAgentRDAccountFG.RD_INSTALLMENT_NO")
+            rebateValue.clear()
+            rebateValue.send_keys(n)
+            saveRebate = driver.find_element_by_id("Button11874602")
+            saveRebate.click()
+            time.sleep(3)
+            # print("came upto here")
+            try:
+                pay = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located(
+                        (By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
+                )
+
+            except:
+                driver.quit()
+
+        p += 1
+
         try:
             pay = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located(
@@ -163,68 +177,70 @@ for m, n in zip(accNumbers, rebate):
         except:
             driver.quit()
 
-    p += 1
+    pay.click()
 
     try:
-        pay = WebDriverWait(driver, 10).until(
+        alertText = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located(
-                (By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
+                (By.XPATH, "//*[@id='MessageDisplay_TABLE']/div[2]"))
         )
-
+        genNumber = alertText.text[53:63]
+        print(genNumber)
     except:
         driver.quit()
 
-pay.click()
+    try:
+        reports = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "Reports"))
+        )
+    except:
+        driver.quit()
 
-try:
-    alertText = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located(
-            (By.XPATH, "//*[@id='MessageDisplay_TABLE']/div[2]"))
-    )
-    genNumber = alertText.text[53:63]
-    print(genNumber)
-except:
-    driver.quit()
+    reports.click()
 
-try:
-    reports = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "Reports"))
-    )
-except:
-    driver.quit()
+    try:
+        cNumber = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(
+                (By.ID, "CustomAgentRDAccountFG.EBANKING_REF_NUMBER"))
+        )
+    except:
+        driver.quit()
 
-reports.click()
+    cNumber.send_keys(genNumber)
 
-try:
-    cNumber = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located(
-            (By.ID, "CustomAgentRDAccountFG.EBANKING_REF_NUMBER"))
-    )
-except:
-    driver.quit()
+    status = Select(driver.find_element_by_id(
+        "CustomAgentRDAccountFG.INSTALLMENT_STATUS"))
 
-cNumber.send_keys(genNumber)
+    status.select_by_value("SUC")
 
-status = Select(driver.find_element_by_id(
-    "CustomAgentRDAccountFG.INSTALLMENT_STATUS"))
+    search = driver.find_element_by_id("SearchBtn")
 
-status.select_by_value("SUC")
+    search.click()
 
-search = driver.find_element_by_id("SearchBtn")
+    time.sleep(4)
 
-search.click()
+    status = Select(driver.find_element_by_id("CustomAgentRDAccountFG.OUTFORMAT"))
 
-time.sleep(4)
+    status.select_by_value("4")
 
-status = Select(driver.find_element_by_id("CustomAgentRDAccountFG.OUTFORMAT"))
+    search = driver.find_element_by_id("SearchBtn")
 
-status.select_by_value("4")
+    ok = driver.find_element_by_id("GENERATE_REPORT")
 
-search = driver.find_element_by_id("SearchBtn")
+    ok.click()
 
-ok = driver.find_element_by_id("GENERATE_REPORT")
-
-ok.click()
+# def check():
+#     loginCheck= driver.find_element_by_xpath( "//*[@id='MessageDisplay_TABLE']/div[2]")
+#     if loginCheck.text[11:20]=="characters":
+#         loginPage()
+#     return
+        
+loginPage()
+time.sleep(1)
+# check()
+# time.sleep(5)
+accountsPage()
+paymentPage()
 
 time.sleep(5)
 
