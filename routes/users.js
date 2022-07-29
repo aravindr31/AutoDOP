@@ -182,4 +182,8 @@ router.get("/logout", (req, res) => {
   req.session.userLogin = "";
   res.redirect("/login");
 });
+router.get("/syncnow",verifyLogin,(req,res)=>{
+  let user = req.session.user;
+  res.render("pdfinit",{user})
+})
 module.exports = router;
