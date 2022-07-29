@@ -6,40 +6,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 import sys
 import time
-# from PIL import Image
-from pytesseract import *
-from cv2 import  *
 
 
-PATH = "C:\Program Files (x86)\chromedriver.exe"
+PATH = "C:\Program Files (x86)\chromedriver.exe" 
 driver = webdriver.Chrome(PATH)
-pytesseract.tesseract_cmd=r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 stringNumber = sys.argv[3]
 accNumbers = list(map(str, stringNumber.split(',')))
 rebateString = sys.argv[4]
 rebate = list(map(int, rebateString.split(',')))
 
-def get_Captcha():
-    captcha = driver.find_element_by_id("IMAGECAPTCHA")
-    captcha.screenshot("currentCaptcha.png")
-    time.sleep(1)
-    img = cv2.imread("currentCaptcha.png")
-    img=get_greyscale(img)
-    textedCaptcha= ocr_core(img)
-
-    if ("o"or"O"or"0"or"1"or"l") in textedCaptcha:
-        driver.find_element_by_id("TEXTIMAGE").click()
-        time.sleep(1)
-        get_Captcha()
-    # else:    
-    return textedCaptcha
-
-def ocr_core(image):
-    text = pytesseract.image_to_string(image)
-    return text
-
-def get_greyscale(image):
-    return cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 
 driver.get("https://dopagent.indiapost.gov.in/")
 # print(driver.title)
@@ -50,26 +25,11 @@ def loginPage ():
     login = driver.find_element_by_id("AuthenticationFG.ACCESS_CODE")
     login.clear()
     login.send_keys(sys.argv[2])
-    # time.sleep(2)
 
-    textedCaptcha = get_Captcha()
-    # time.sleep(3)
-    # print(textedCaptcha)
-    # submitbtn = driver.find_element_by_name("Action.VALIDATE_RM_PLUS_CREDENTIALS_CATCHA_DISABLED")
-    typeCaptcha = driver.find_element_by_id("AuthenticationFG.VERIFICATION_CODE")
-    typeCaptcha.send_keys(textedCaptcha)
-    # driver.quit()
-    time.sleep(1)
-    # submitbtn.click()
-    # driver.find_element_by_xpath("//*[@id='VALIDATE_RM_PLUS_CREDENTIALS_CATCHA_DISABLED']").submit()
-    return
 
-# time.sleep(3)
-# if (driver.find_element_by_link_text("Enter the characters that you see in the picture").size != 0):
-#     loginPage()
 def accountsPage():
     try:
-        accounts = WebDriverWait(driver, 10).until(
+        accounts = WebDriverWait(driver, 360).until(
             EC.presence_of_element_located((By.ID,"Accounts"))
         )
     except:
@@ -237,8 +197,6 @@ def paymentPage():
         
 loginPage()
 time.sleep(1)
-# check()
-# time.sleep(5)
 accountsPage()
 paymentPage()
 

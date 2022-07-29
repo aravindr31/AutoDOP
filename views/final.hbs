@@ -47,7 +47,7 @@
                             <th style="text-align: center;" scope="col"></th>
                             <th style="text-align: center;" scope="col">R/A</th>
                             <th style="text-align: center;" scope="col"></th>
-                            <th style="text-align: center;" scope="col">Remove from list</th>
+                            <th style="text-align: center;" scope="col">Delete</th>
 
                             <th></th>
 
@@ -63,17 +63,17 @@
                             <td style="text-align: center;">{{this.Denomination}}</td>
                             <td colspan="1" class="text-right ">
                                 <button onclick="rebateFunction('{{this.Number}}',1)" id="plusbtn"
-                                    class="btn btn-outline-success mr-2">+</button>
+                                    class="btn btn-success mr-2">Inc</button>
                             </td>
                             <td class="text-center align-center {{this.Number}}" id="{{this.Number}}">{{this.Rebate}}
                             </td>
                             <td colspan="1" class="text-left ">
                                 <button onclick="rebateFunction('{{this.Number}}',-1)" id="minusbtn"
-                                    class="btn btn-outline-warning ml-2">-</button>
+                                    class="btn btn-warning ml-2">Dec</button>
                             </td>
                             <td style="text-align: center;">
                                 <button onclick="deleteFromList('{{this.Number}}')"
-                                    class="btn btn-outline-danger"><h5>X</h5></button>
+                                    class="btn btn-danger">DEL</button>
                             </td>
 
 
@@ -150,21 +150,10 @@
     {{!-- border-radius: 10px; --}}
 }
 .btn-outline-warning{
-    font-size: large;
-    height: 42px;
-    width: 40px;
-    border-radius: 20px;
+    font-size: medium;
+
 }
-.btn-outline-success{
-          height: 40px;
-    width: 40px;
-    border-radius: 20px;  
-}
-.btn-outline-danger{
-        height: 40px;
-    width: 40px;
-    border-radius: 20px;
-}
+
 .modal-header{
     border:none !important;
     {{!-- padding: 5px; --}}
