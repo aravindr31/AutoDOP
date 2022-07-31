@@ -283,7 +283,7 @@ module.exports = {
       );
       let accNumbers = list.listAcc.map((a) => a.Number);
       let rebateNumber = list.listAcc.map((a) => a.Rebate);
-      console.log(credentials[0].UserInfo.DOP_ID, decryptedPassword);
+      console.log(credentials[0].UserInfo.DOP_ID, decryptedPassword,accNumbers,rebateNumber);
       const childPython = spawnSync("python", [
         path.join(__dirname, "../public/pythonscripts/webscrape.py"),
         credentials[0].UserInfo.DOP_ID,

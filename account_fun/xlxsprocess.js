@@ -1,7 +1,7 @@
 const fs = require("fs");
 const { spawnSync } = require("child_process");
-const xlsFolder = "C:\\Users\\aravi\\Documents\\RD\\xlsFile";
-const xlsxFolder = "C:\\Users\\aravi\\Documents\\RD\\xlsxFile";
+const xlsFolder = "C:\\Users\\Aravind\\Documents\\RD\\xlsFile";
+const xlsxFolder = "C:\\Users\\Aravind\\Documents\\RD\\xlsxFile";
 
 module.exports = {
   getXlsFiles: () => {
@@ -20,9 +20,10 @@ module.exports = {
     });
   },
   xlsConverter: (FName) => {
+    console.log(FName)
     return new Promise(async (resolve, reject) => {
-      const pyConverter = spawnSync("python", [
-        "C:\\Users\\aravi\\Documents\\xlAuto\\converter.py",
+      const pyConverter = await spawnSync("python", [
+        "C:\\Users\\Aravind\\Documents\\DOP-Agent-Automator\\public\\pythonscripts\\converter.py",
         FName,
       ]);
       if (pyConverter.status != 0) {
@@ -35,7 +36,7 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       console.log(FName, data);
       const pyFormater = spawnSync("python", [
-        "C:\\Users\\aravi\\Documents\\xlAuto\\formator.py",
+        "C:\\Users\\Aravind\\Documents\\DOP-Agent-Automator\\public\\pythonscripts\\formator.py",
         FName,
         data,
       ]);
