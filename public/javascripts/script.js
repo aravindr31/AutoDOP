@@ -1,4 +1,4 @@
-function addToList(number, name, denomination, rebate,cardNumber) {
+function addToList(number, name, denomination, rebate, cardNumber) {
   $.ajax({
     url: "/addToList/",
     data: {
@@ -6,7 +6,7 @@ function addToList(number, name, denomination, rebate,cardNumber) {
       Name: name,
       Denomination: denomination,
       Rebate: rebate,
-      CNumber:cardNumber,
+      CNumber: cardNumber,
     },
     method: "post",
     success: (response) => {
@@ -72,7 +72,7 @@ function genarateList() {
     success: (data) => {
       if (data) {
         alertify.alert(`List Number is : ${data}`, function () {
-          window.location.href="/final";
+          window.location.href = "/final";
         });
       }
     },
@@ -111,4 +111,44 @@ function passwordCheck(newPass, cNewPass, messageTag, buttonStatus) {
     message.innerHTML = "Password Does Not Match";
     buttonState.disabled = true;
   }
+}
+function converter(fname) {
+  fname = fname.substring(0, fname.length - 4);
+  console.log(fname);
+
+  $.ajax({
+    url: "/convertxls",
+    data: {
+      FName: fname,
+    },
+    method: "post",
+    success: () => {
+      window.location.href = "/viewlist";
+    },
+  });
+}
+function formatXlsx(fname) {
+  console.log(fname);
+  alertify.prompt(
+    "Date and List Data..",
+    "",
+    "",
+    function (evt, value) {
+      $.ajax({
+        url: "/formatxlsx",
+        data: {
+          FName: fname,
+          addData: value,
+        },
+        method: "post",
+        success: (data) => {
+          console.log(data);
+          alertify.success(data);
+        },
+      });
+    },
+    function () {
+      alertify.error("Cancel");
+    }
+  );
 }

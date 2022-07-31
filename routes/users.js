@@ -2,6 +2,9 @@ const { response } = require("express");
 var express = require("express");
 var router = express.Router();
 var mainfunction = require("../account_fun/main_fun");
+const { xlsxFormater } = require("../account_fun/xlxsprocess");
+var xlFuntion = require("../account_fun/xlxsprocess");
+
 const verifyLogin = (req, res, next) => {
   if (req.session.userLogin) {
     next();
@@ -37,15 +40,19 @@ router.get("/", verifyLogin, (req, res, _next) => {
     // console.log(req.query.search)
     //search
     // const regex = new RegExp(searchOptions(req.query.search), "gi");
-    // const search = 
+    // const search =
     mainfunction.findAccount(user._id, req.query.search).then((accounts) => {
-      console.log(accounts.mAccount,"--------------------------------")  
-    // mainfunction.findAccount(user._id, regex).then((accounts) => {
-      let status =""
-      if(accounts.status =="notFound"){
-         status = "No Result Found !!"
+      console.log(accounts.mAccount, "--------------------------------");
+      // mainfunction.findAccount(user._id, regex).then((accounts) => {
+      let status = "";
+      if (accounts.status == "notFound") {
+        status = "No Result Found !!";
       }
-      res.render("index", { accounts: accounts.mAccount, user ,status:status });
+      res.render("index", {
+        accounts: accounts.mAccount,
+        user,
+        status: status,
+      });
     });
   } else {
     mainfunction.findAccount(user._id).then((accounts) => {
@@ -130,7 +137,7 @@ router.get("/final", verifyLogin, async (req, res) => {
   if (accounts.length > 0) {
     total = await mainfunction.getTotal(user._id);
   }
-  console.log(accounts)
+  console.log(accounts);
   res.render("final", {
     title: "Account Lookup",
     accounts: accounts,
@@ -142,7 +149,7 @@ router.get("/final", verifyLogin, async (req, res) => {
 //Add To List
 router.post("/addToList/", verifyLogin, (req, res) => {
   let user = req.session.user;
-  console.log("-------------------------",req.body)
+  console.log("-------------------------", req.body);
   mainfunction.addToList(req.body, user._id).then((response) => {
     res.json(response);
   });
@@ -182,8 +189,25 @@ router.get("/logout", (req, res) => {
   req.session.userLogin = "";
   res.redirect("/login");
 });
-router.get("/syncnow",verifyLogin,(req,res)=>{
+router.get("/viewlist", verifyLogin, async (req, res) => {
   let user = req.session.user;
-  res.render("pdfinit",{user})
-})
+  let xlsfile = await xlFuntion.getXlsFiles();
+  let xlsxfile = await xlFuntion.getXlsxFiles();
+  console.log(xlsfile, xlsxfile);
+  res.render("viewList", { xlsxfile, xlsfile, user });
+});
+router.post("/convertxls", verifyLogin, async (req, res) => {
+  let fileName = req.body.FName;
+  await xlFuntion.xlsConverter(fileName).then((data) => {
+    res.json(data);
+  });
+});
+router.post("/formatxlsx", verifyLogin, async (req, res) => {
+  let FName = req.body.FName;
+  let addData = req.body.addData;
+  console.log(FName, addData);
+  await xlFuntion.xlsxFormater(FName, addData).then((data) => {
+    res.json(data);
+  });
+});
 module.exports = router;

@@ -1,3 +1,4 @@
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -8,8 +9,13 @@ import sys
 import time
 
 
-PATH = "C:\Program Files (x86)\chromedriver.exe" 
-driver = webdriver.Chrome(PATH)
+chromeOptions = webdriver.ChromeOptions()
+prefs = {"download.default_directory": "C:\\Users\\aravi\\Documents\\RD\\xlsFile"}
+chromeOptions.add_experimental_option("prefs", prefs)
+PATH = "C:\Program Files (x86)\chromedriver.exe"
+driver = webdriver.Chrome(executable_path=PATH, options=chromeOptions)
+
+
 stringNumber = sys.argv[3]
 accNumbers = list(map(str, stringNumber.split(',')))
 rebateString = sys.argv[4]
@@ -18,7 +24,9 @@ rebate = list(map(int, rebateString.split(',')))
 
 driver.get("https://dopagent.indiapost.gov.in/")
 # print(driver.title)
-def loginPage ():
+
+
+def loginPage():
     login = driver.find_element_by_id("AuthenticationFG.USER_PRINCIPAL")
     login.clear()
     login.send_keys(sys.argv[1])
@@ -30,7 +38,7 @@ def loginPage ():
 def accountsPage():
     try:
         accounts = WebDriverWait(driver, 360).until(
-            EC.presence_of_element_located((By.ID,"Accounts"))
+            EC.presence_of_element_located((By.ID, "Accounts"))
         )
     except:
         driver.quit()
@@ -84,7 +92,8 @@ def accountsPage():
     saveAccounts.click()
     try:
         pay = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
+            EC.presence_of_element_located(
+                (By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
         )
 
     except:
@@ -95,6 +104,8 @@ def accountsPage():
 
 # print(len(rebate))
 # print(rebate)
+
+
 def paymentPage():
     p = 0
     for m, n in zip(accNumbers, rebate):
@@ -179,7 +190,8 @@ def paymentPage():
 
     time.sleep(4)
 
-    status = Select(driver.find_element_by_id("CustomAgentRDAccountFG.OUTFORMAT"))
+    status = Select(driver.find_element_by_id(
+        "CustomAgentRDAccountFG.OUTFORMAT"))
 
     status.select_by_value("4")
 
@@ -194,12 +206,13 @@ def paymentPage():
 #     if loginCheck.text[11:20]=="characters":
 #         loginPage()
 #     return
-        
+
+
 loginPage()
 time.sleep(1)
 accountsPage()
 paymentPage()
 
-time.sleep(5)
+time.sleep(3)
 
 driver.quit()

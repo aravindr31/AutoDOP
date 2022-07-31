@@ -1,0 +1,51 @@
+<section  class="topContainer">
+
+  <div class="p-3">
+    <div class="headblock">
+    <h3>Unformated Files</h3>
+    {{!-- <button type="button" class="btn btn-danger m-2">Convert</button> --}}
+    </div>
+
+    {{#if xlsfile}}
+    <div class="p-3">
+      {{#each xlsfile}}
+  <button type="button" class="btn btn-secondary m-2" onclick="converter('{{this}}')">{{this}}</button>
+     {{/each}}
+    </div>
+    {{else}}
+    <h3 class="text-center">No Files are available... </h3>
+    {{/if }}
+  </div>
+
+  <hr>
+  <div class="p-3">
+
+
+<!-- Button trigger modal -->
+    <div class="headblock">
+    <h3>Formated Files</h3>
+    {{!-- <button type="button" class="btn btn-danger m-2">Convert</button> --}}
+    </div>
+    {{#if xlsxfile}}
+    <div class="p-3">
+      {{#each xlsxfile}}
+  <button type="button" class="btn btn-secondary m-2" onclick="formatXlsx('{{this}}')">{{this}}</button>
+     {{/each}}
+    </div>
+    {{else}}
+    <h3 class="text-center">No Files are available... </h3>
+    {{/if }}
+
+    </div>
+  </div>
+</section>
+<style>
+  .topContainer{
+    padding-top: 70px;
+  }
+  .headblock { 
+display: flex;
+justify-content: space-between; 
+width:100%;
+  }
+</style> 

@@ -55,7 +55,7 @@ module.exports = {
   },
 
   findAccount: (userId, search) => {
-    console.log(search)
+    console.log(search);
     return new Promise(async (resolve, reject) => {
       let accountArr = await db
         .get()
@@ -73,44 +73,41 @@ module.exports = {
           {
             $unwind: "$accounts",
           },
-          // { 
+          // {
           //   $sort : { Name : 1 },
           // }
         ])
         .toArray();
-              let account = accountArr.map((a) => a.accounts);
-              // console.log(account)
-          if (search) {
-          // console.log("search found ")
-        let matchedAccount = account.find(function(acc, index) {
-         if(acc.Ref_Number === search)
-          return true;
-          });
+      let account = accountArr.map((a) => a.accounts);
+      // console.log(account)
+      if (search) {
+        // console.log("search found ")
+        let matchedAccount = account.find(function (acc, index) {
+          if (acc.Ref_Number === search) return true;
+        });
         // console.log(matchedAccount)
-      //   let matchedAccount = account.filter((a) => {
-      //     return search.test(a.Name);
-      //   });
-      if(matchedAccount){
-     let mAccount = [matchedAccount]
-        // console.log(">>>>",mAccount)
-        resolve({mAccount:mAccount,status:"found"});  
-      }
-      else{
-
-        resolve({status:"notFound"}); 
-      }
+        //   let matchedAccount = account.filter((a) => {
+        //     return search.test(a.Name);
+        //   });
+        if (matchedAccount) {
+          let mAccount = [matchedAccount];
+          // console.log(">>>>",mAccount)
+          resolve({ mAccount: mAccount, status: "found" });
+        } else {
+          resolve({ status: "notFound" });
+        }
       } else {
         resolve(account);
       }
     });
   },
   addToList: (Details, userId) => {
-    console.log(">>>>>>>>>>>>>Details>>>",Details)
+    console.log(">>>>>>>>>>>>>Details>>>", Details);
     let accDetails = {
       Name: Details.Name,
       Number: Details.Number,
       Denomination: parseInt(Details.Denomination),
-      CNumber:Details.CNumber,
+      CNumber: Details.CNumber,
       Rebate: 1,
     };
     return new Promise(async (resolve, reject) => {
@@ -171,11 +168,11 @@ module.exports = {
           {
             $unwind: "$listAcc",
           },
-          { $sort :
-           {
-            "listAcc.Number":1 
-          } 
-         },
+          {
+            $sort: {
+              "listAcc.Number": 1,
+            },
+          },
         ])
         .toArray();
       let account = list.map((a) => a.listAcc);
@@ -286,7 +283,7 @@ module.exports = {
       );
       let accNumbers = list.listAcc.map((a) => a.Number);
       let rebateNumber = list.listAcc.map((a) => a.Rebate);
-      // console.log(">>>>>>>>>>>>>>>>>>>>>>",accNumbers)
+      console.log(credentials[0].UserInfo.DOP_ID, decryptedPassword);
       const childPython = spawnSync("python", [
         path.join(__dirname, "../public/pythonscripts/webscrape.py"),
         credentials[0].UserInfo.DOP_ID,
@@ -330,7 +327,7 @@ module.exports = {
   changeDOPPassword: (passwords, userId) => {
     return new Promise(async (resolve, reject) => {
       // oldpassword = await bcrypt.hash(passwords.Cpass, 10);
-      console.log(passwords)
+      console.log(passwords);
       oldpassword = passwords.Cpass;
       newPassword = await cryptr.encrypt(passwords.Npass);
       let user = await db
@@ -338,23 +335,23 @@ module.exports = {
         .collection(collection.USER)
         .findOne({ _id: ObjectId(userId) });
       if (user) {
-            if (oldpassword == cryptr.decrypt(user.UserInfo.DOP_password)) {
-              console.log("oldpassword match")
-              await db
-                .get()
-                .collection(collection.USER)
-                .updateOne(
-                  { _id: ObjectId(userId) },
-                  {
-                    $set: {
-                      "UserInfo.DOP_password": newPassword,
-                    },
-                  }
-                );
-              resolve({ changeStatus: true });
-            } else {
-              resolve({ changeStatus: false });
-            }
+        if (oldpassword == cryptr.decrypt(user.UserInfo.DOP_password)) {
+          console.log("oldpassword match");
+          await db
+            .get()
+            .collection(collection.USER)
+            .updateOne(
+              { _id: ObjectId(userId) },
+              {
+                $set: {
+                  "UserInfo.DOP_password": newPassword,
+                },
+              }
+            );
+          resolve({ changeStatus: true });
+        } else {
+          resolve({ changeStatus: false });
+        }
       }
     });
   },
