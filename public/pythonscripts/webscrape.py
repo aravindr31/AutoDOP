@@ -1,4 +1,5 @@
 
+from numpy import safe_eval
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -10,15 +11,29 @@ import time
 
 
 chromeOptions = webdriver.ChromeOptions()
-prefs = {"download.default_directory": "C:\\Users\\aravi\\Documents\\RD\\xlsFile"}
+prefs = {"download.default_directory": "C:\\Users\\Aravind\\Documents\\RD\\xlsFile"}
 chromeOptions.add_experimental_option("prefs", prefs)
 PATH = "C:\Program Files (x86)\chromedriver.exe"
 driver = webdriver.Chrome(executable_path=PATH, options=chromeOptions)
 
 
+driver.get("https://dopagent.indiapost.gov.in/")
+
 stringNumber = sys.argv[3]
+# stringNumber = ['3380548162', '3473894657','3581291478', '3766095846','3788355539', '3799414133',
+#   '3766080545', '3766045599',
+#   '3900929297', '3918499553',
+#   '3933291323', '4142670305',
+#   '4041721733', '4070381762'
+# ]
 accNumbers = list(map(str, stringNumber.split(',')))
 rebateString = sys.argv[4]
+# rebateString = [
+#   1, 1, 1, 1, 1, 1,
+#   1, 1, 1, 1, 1, 1,
+#   1, 1
+# ]
+
 rebate = list(map(int, rebateString.split(',')))
 
 
@@ -30,9 +45,13 @@ def loginPage():
     login = driver.find_element_by_id("AuthenticationFG.USER_PRINCIPAL")
     login.clear()
     login.send_keys(sys.argv[1])
+    # login.send_keys("DOP.MI6855840100003")
+
     login = driver.find_element_by_id("AuthenticationFG.ACCESS_CODE")
     login.clear()
     login.send_keys(sys.argv[2])
+    # login.send_keys("rd12345678#")
+
 
 
 def accountsPage():
@@ -76,6 +95,7 @@ def accountsPage():
     AccountNumbers = []
     fetch = driver.find_element_by_id("Button3087042")
     fetch.click()
+
     x = 0
     while x < noOfAccounts:
         if x == 10:
@@ -88,16 +108,21 @@ def accountsPage():
             "CustomAgentRDAccountFG.SELECT_INDEX_ARRAY[" + y + "]")
         selectAccount.click()
         x += 1
-    saveAccounts = driver.find_element_by_id("Button26553257")
-    saveAccounts.click()
-    try:
-        pay = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located(
-                (By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
-        )
+    
+    # try:
+    #     saveAccounts = WebDriverWait(driver, 3).until(
+    #         EC.presence_of_element_located(
+    #             (By.ID, "Button26553257"))
+    #     )
 
-    except:
-        driver.quit()
+    # except:
+    #     driver.quit()
+    
+    # saveAccounts = driver.find_element_by_xpath("//*[@id='dpScheduleBtn']")
+    saveAccounts = driver.find_element_by_id("Button26553257")
+    # saveAccounts = driver.find_element_by_xpath("//*[@id='Button26553257']")
+    saveAccounts.click()
+
 # print("here")
 # rebateString = sys.argv[4]
 # rebate = list(map(int, rebateString.split(',')))

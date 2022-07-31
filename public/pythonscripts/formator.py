@@ -10,7 +10,7 @@ from copy import copy
 
 filename = sys.argv[1]
 addData = sys.argv[2]
-basePath = 'C:\\Users\\aravi\\Documents\\RD'
+basePath = 'C:\\Users\\Aravind\\Documents\\RD'
 rFile = basePath + '\\xlsxFile'
 fFile = basePath + '\\formatted'
 parent = basePath + '\\Parent\\Custom_RD_Model.xlsx'
