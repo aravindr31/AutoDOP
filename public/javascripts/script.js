@@ -61,14 +61,18 @@ function deleteFromList(number) {
     function () {}
   );
 }
-function genarateList() {
+function genarateList(count) {
+  console.log(count)
   let buttonState = document.getElementById("genarateBtn");
   buttonState.className = "btn btn-danger";
   buttonState.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...`;
   buttonState.disabled = true;
   $.ajax({
     url: "/genarateList",
-    method: "get",
+    method: "post",
+    data:{
+      count:count
+    },
     success: (data) => {
       if (data) {
         alertify.alert(`List Number is : ${data}`, function () {
@@ -151,4 +155,12 @@ function formatXlsx(fname) {
       alertify.error("Cancel");
     }
   );
+}
+function fileshread(strinf){
+  console.log("called fileshread",strinf)
+  $.ajax({
+    url: "/shreadfiles/",
+    method: "GET",
+
+  })
 }

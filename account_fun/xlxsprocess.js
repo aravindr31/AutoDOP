@@ -44,4 +44,15 @@ module.exports = {
       resolve(`${pyFormater.stdout}`);
     });
   },
+  fileRename:(count)=>{
+    return new Promise(async(resolve,reject)=>{
+      const pyRenamer = await spawnSync("python", [
+        "C:\\Users\\Aravind\\Documents\\DOP-Agent-Automator\\public\\pythonscripts\\dump.py",count
+      ]);
+      if (pyRenamer.status != 0) {
+      } else {
+        resolve(`${pyRenamer.stdout}`);
+      }
+    })
+  }
 };

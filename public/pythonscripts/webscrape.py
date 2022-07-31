@@ -8,7 +8,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 import sys
 import time
-
+import glob
+import os
 
 chromeOptions = webdriver.ChromeOptions()
 prefs = {"download.default_directory": "C:\\Users\\Aravind\\Documents\\RD\\xlsFile"}
@@ -96,19 +97,27 @@ def accountsPage():
     fetch = driver.find_element_by_id("Button3087042")
     fetch.click()
 
-    x = 0
-    while x < noOfAccounts:
-        if x == 10:
-            nextPage = driver.find_element_by_id(
-                "Action.AgentRDActSummaryAllListing.GOTO_NEXT__")
-            nextPage.click()
+    # saveAccounts = driver.find_element_by_id("Button26553257")
+    # saveAccounts.click()
 
-        y = str(x)
-        selectAccount = driver.find_element_by_id(
-            "CustomAgentRDAccountFG.SELECT_INDEX_ARRAY[" + y + "]")
-        selectAccount.click()
-        x += 1
-    
+    def selectAccounts():
+        x = 0
+        while x < noOfAccounts:
+            if x == 10:
+                nextPage = driver.find_element_by_id(
+                    "Action.AgentRDActSummaryAllListing.GOTO_NEXT__")
+                nextPage.click()
+
+            y = str(x)
+            selectAccount = driver.find_element_by_id(
+                "CustomAgentRDAccountFG.SELECT_INDEX_ARRAY[" + y + "]")
+            selectAccount.click()
+            x += 1
+    selectAccounts()
+    saveAccounts = driver.find_element_by_id("Button26553257")
+    # saveAccounts = driver.find_element_by_xpath("//*[@id='Button26553257']")
+    saveAccounts.click()
+
     # try:
     #     saveAccounts = WebDriverWait(driver, 3).until(
     #         EC.presence_of_element_located(
@@ -118,10 +127,7 @@ def accountsPage():
     # except:
     #     driver.quit()
     
-    # saveAccounts = driver.find_element_by_xpath("//*[@id='dpScheduleBtn']")
-    saveAccounts = driver.find_element_by_id("Button26553257")
-    # saveAccounts = driver.find_element_by_xpath("//*[@id='Button26553257']")
-    saveAccounts.click()
+    # saveAccounts = driver.find_element_by_id("NavPanel.Ra1.C1")
 
 # print("here")
 # rebateString = sys.argv[4]
@@ -132,6 +138,16 @@ def accountsPage():
 
 
 def paymentPage():
+
+    try:
+        pay = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(
+                (By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
+        )
+
+    except:
+        driver.quit()
+
     p = 0
     for m, n in zip(accNumbers, rebate):
         q = str(p)
@@ -164,14 +180,6 @@ def paymentPage():
 
         p += 1
 
-        try:
-            pay = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located(
-                    (By.ID, "PAY_ALL_SAVED_INSTALLMENTS"))
-            )
-
-        except:
-            driver.quit()
 
     pay.click()
 
@@ -234,10 +242,20 @@ def paymentPage():
 
 
 loginPage()
-time.sleep(1)
 accountsPage()
 paymentPage()
 
 time.sleep(3)
 
+
 driver.quit()
+
+#renamer
+
+# folder = "C:\\Users\\Aravind\\Documents\\RD\\xlsFile\\*"
+# list_of_files = glob.glob(folder) # * means all if need specific format then *.csv
+# latest_file = max(list_of_files, key=os.path.getctime)
+# lFName = os.path.basename(latest_file)
+# newFname = lFName.split( )[0]+" "+len(accNumbers) +".xls"
+
+# os.rename("C:\\Users\\Aravind\\Documents\\RD\\xlsFile\\"+lFName,"C:\\Users\\Aravind\\Documents\\RD\\xlsFile\\"+newFname)

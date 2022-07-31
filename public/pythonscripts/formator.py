@@ -12,7 +12,7 @@ filename = sys.argv[1]
 addData = sys.argv[2]
 basePath = 'C:\\Users\\Aravind\\Documents\\RD'
 rFile = basePath + '\\xlsxFile'
-fFile = basePath + '\\formatted'
+fFile = 'C:\\Users\\Aravind\\Downloads'
 parent = basePath + '\\Parent\\Custom_RD_Model.xlsx'
 
 
@@ -37,13 +37,16 @@ def varDataIn(data, arrIndex):
 
 # Formulate Dataframe
 # wb = openpyxl.load_workbook(rFile + "\\RDInstallmentReport29-07-2022.xlsx")
+countExtracted = filename.split( )[0]
+print("F14:U"+str(14+int(countExtracted)-1))
+
 wb = openpyxl.load_workbook(rFile + "\\" + filename)
 
 wst = wb['RDInstallmentReport']
 
-dframe = load_workbook_range('F14:U17', wst)
-# constants
+dframe = load_workbook_range("F14:U"+str(14+int(countExtracted)-1), wst)
 
+# constants
 listCID = wst["I6"].value
 createdDate = wst["W14"].value
 fromDate = wst["I5"].value

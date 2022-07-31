@@ -4,6 +4,8 @@ var router = express.Router();
 var mainfunction = require("../account_fun/main_fun");
 const { xlsxFormater } = require("../account_fun/xlxsprocess");
 var xlFuntion = require("../account_fun/xlxsprocess");
+const fsExtra = require('fs-extra');
+
 
 const verifyLogin = (req, res, next) => {
   if (req.session.userLogin) {
@@ -179,9 +181,11 @@ router.get("/finish", verifyLogin, async (req, res) => {
 });
 
 //Genarate List`
-router.get("/genarateList", verifyLogin, async (req, res) => {
+router.post("/genarateList", verifyLogin, async (req, res) => {
   let user = req.session.user;
-  await mainfunction.genarateList(user._id).then((data) => {
+  let count = req.body.count;
+  await mainfunction.genarateList(user._id).then(async (data) => {
+    await xlFuntion.fileRename(count);
     res.json(data);
   });
 });
@@ -198,7 +202,7 @@ router.get("/viewlist", verifyLogin, async (req, res) => {
 });
 router.post("/convertxls", verifyLogin, async (req, res) => {
   let fileName = req.body.FName;
-  console.log(fileName )
+  console.log(fileName);
   await xlFuntion.xlsConverter(fileName).then((data) => {
     res.json(data);
   });
@@ -210,5 +214,19 @@ router.post("/formatxlsx", verifyLogin, async (req, res) => {
   await xlFuntion.xlsxFormater(FName, addData).then((data) => {
     res.json(data);
   });
+});
+router.get("/shreadfiles", verifyLogin, async (req, res) => {
+  let xlspath = "C:\\Users\\Aravind\\Documents\\RD\\xlsFile";
+  let xlsxpath = "C:\\Users\\Aravind\\Documents\\RD\\xlsxFile";
+console.log("called inside user")
+  let folderArr = [xlspath, xlsxpath];
+  for (let x=0; x < folderArr.length; x++) {
+
+   fsExtra.emptyDir(folderArr[x], err => {
+      if (err) return console.error(err)
+      console.log('success!')
+    })
+  }
+  res.redirect("/")
 });
 module.exports = router;
