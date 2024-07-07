@@ -1,0 +1,16 @@
+2023-07-08 19:54:23 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\Admin\Documents\DOP-Agent-Automator\node_modules\node-windows\lib\wrapper.js --file C:\Users\Admin\Documents\DOP-Agent-Automator\bin\www --scriptoptions= --log "DOP Auto Starter wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2023-07-08 19:54:23 - Started 1984
+2023-07-08 20:03:24 - Stopping dopautostarter.exe
+2023-07-08 20:03:24 - ProcessKill 1984
+2023-07-08 20:03:24 - Found child process: 4360 Name: conhost.exe
+2023-07-08 20:03:24 - Found child process: 5560 Name: node.exe
+2023-07-08 20:03:24 - Stopping process 4360
+2023-07-08 20:03:24 - Send SIGINT 4360
+2023-07-08 20:03:25 - SIGINT to 4360 failed - Killing as fallback
+2023-07-08 20:03:25 - Stopping process 5560
+2023-07-08 20:03:25 - Send SIGINT 5560
+2023-07-08 20:03:25 - SIGINT to 5560 failed - Killing as fallback
+2023-07-08 20:03:25 - Stopping process 1984
+2023-07-08 20:03:25 - Send SIGINT 1984
+2023-07-08 20:03:25 - SIGINT to 1984 failed - Killing as fallback
+2023-07-08 20:03:25 - Finished dopautostarter.exe

@@ -1,14 +1,15 @@
 <service>
-	<id>dop_service.exe</id>
-	<name>DOP_Service</name>
-	<description>service for running dop server</description>
+	<id>dopautostarter.exe</id>
+	<name>DOP Auto Starter</name>
+	<description>Instance to start DOP app</description>
 	<executable>C:\Program Files\nodejs\node.exe</executable>
-	<argument>C:\Users\Aravind\Documents\DOP-Agent-Automator\node_modules\node-windows\lib\wrapper.js</argument>
+	<argument>--harmony</argument>
+	<argument>C:\Users\Admin\Documents\DOP-Agent-Automator\node_modules\node-windows\lib\wrapper.js</argument>
 	<argument>--file</argument>
-	<argument>C:\Users\Aravind\Documents\DOP-Agent-Automator\bin\www</argument>
+	<argument>C:\Users\Admin\Documents\DOP-Agent-Automator\bin\www</argument>
 	<argument>--scriptoptions=</argument>
 	<argument>--log</argument>
-	<argument>DOP_Service wrapper</argument>
+	<argument>DOP Auto Starter wrapper</argument>
 	<argument>--grow</argument>
 	<argument>0.25</argument>
 	<argument>--wait</argument>
@@ -18,13 +19,13 @@
 	<argument>--abortonerror</argument>
 	<argument>n</argument>
 	<argument>--stopparentfirst</argument>
-	<argument>false</argument>
+	<argument>undefined</argument>
 	<logmode>rotate</logmode>
 	<stoptimeout>30sec</stoptimeout>
 	<serviceaccount>
-		<domain>DESKTOP-Q5H8S65</domain>
+		<domain>DESKTOP-042F91H</domain>
 		<user>LocalSystem</user>
 		<password></password>
 	</serviceaccount>
-	<workingdirectory>C:\Users\Aravind\Documents\DOP-Agent-Automator</workingdirectory>
+	<workingdirectory>C:\Users\Admin\Documents\DOP-Agent-Automator\serviceFolder</workingdirectory>
 </service>

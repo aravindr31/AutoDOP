@@ -1,4 +1,8 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
+# from selenium.webdriver.firefox.service import Service as FirefoxService
+# from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -8,8 +12,11 @@ import sys
 import time
 
 
-PATH = "C:\Program Files (x86)\chromedriver.exe" 
-driver = webdriver.Chrome(PATH)
+# PATH = "C:\\Users\\Admin\\Documents\\DOP-Agent-Automator\\chromedriver.exe"
+driver  = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
+
+# driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
+driver.maximize_window()
 stringNumber = sys.argv[3]
 accNumbers = list(map(str, stringNumber.split(',')))
 rebateString = sys.argv[4]
@@ -19,10 +26,10 @@ rebate = list(map(int, rebateString.split(',')))
 driver.get("https://dopagent.indiapost.gov.in/")
 # print(driver.title)
 def loginPage ():
-    login = driver.find_element_by_id("AuthenticationFG.USER_PRINCIPAL")
+    login = driver.find_element(By.ID,"AuthenticationFG.USER_PRINCIPAL")
     login.clear()
     login.send_keys(sys.argv[1])
-    login = driver.find_element_by_id("AuthenticationFG.ACCESS_CODE")
+    login = driver.find_element(By.ID,"AuthenticationFG.ACCESS_CODE")
     login.clear()
     login.send_keys(sys.argv[2])
 
@@ -55,7 +62,7 @@ def accountsPage():
 
     cash.click()
 
-    fetchAccounts = driver.find_element_by_id(
+    fetchAccounts = driver.find_element(By.ID,
         "CustomAgentRDAccountFG.ACCOUNT_NUMBER_FOR_SEARCH")
     # print(sys[1])
     # stringNumber = sys.argv[3]
@@ -66,21 +73,24 @@ def accountsPage():
     for i in accNumbers:
         fetchAccounts.send_keys(i, ",")
     AccountNumbers = []
-    fetch = driver.find_element_by_id("Button3087042")
+    fetch = driver.find_element(By.ID,"Button3087042")
     fetch.click()
     x = 0
     while x < noOfAccounts:
         if x == 10:
-            nextPage = driver.find_element_by_id(
+            nextPage = driver.find_element(By.ID,
                 "Action.AgentRDActSummaryAllListing.GOTO_NEXT__")
             nextPage.click()
 
         y = str(x)
-        selectAccount = driver.find_element_by_id(
+        selectAccount = driver.find_element(By.ID,
             "CustomAgentRDAccountFG.SELECT_INDEX_ARRAY[" + y + "]")
         selectAccount.click()
         x += 1
-    saveAccounts = driver.find_element_by_id("Button26553257")
+    time.sleep(5)
+    
+    saveAccounts = driver.find_element(By.ID,"Button26553257")
+
     saveAccounts.click()
     try:
         pay = WebDriverWait(driver, 10).until(
@@ -102,18 +112,18 @@ def paymentPage():
         if n != 1:
 
             if p >= 10:
-                rebateNextPage = driver.find_element_by_id(
+                rebateNextPage = driver.find_element(By.ID,
                     "Action.SelectedAgentRDActSummaryListing.GOTO_NEXT__")
                 rebateNextPage.click()
 
-            rebateNextAcc = driver.find_element_by_xpath(
+            rebateNextAcc = driver.find_element(By.XPATH,
                 "//input[@value='" + q + "']")
             rebateNextAcc.click()
-            rebateValue = driver.find_element_by_id(
+            rebateValue = driver.find_element(By.ID,
                 "CustomAgentRDAccountFG.RD_INSTALLMENT_NO")
             rebateValue.clear()
             rebateValue.send_keys(n)
-            saveRebate = driver.find_element_by_id("Button11874602")
+            saveRebate = driver.find_element(By.ID,"Button11874602")
             saveRebate.click()
             time.sleep(3)
             # print("came upto here")
@@ -168,24 +178,24 @@ def paymentPage():
 
     cNumber.send_keys(genNumber)
 
-    status = Select(driver.find_element_by_id(
+    status = Select(driver.find_element(By.ID,
         "CustomAgentRDAccountFG.INSTALLMENT_STATUS"))
 
     status.select_by_value("SUC")
 
-    search = driver.find_element_by_id("SearchBtn")
+    search = driver.find_element(By.ID,"SearchBtn")
 
     search.click()
 
     time.sleep(4)
 
-    status = Select(driver.find_element_by_id("CustomAgentRDAccountFG.OUTFORMAT"))
+    status = Select(driver.find_element(By.ID,"CustomAgentRDAccountFG.OUTFORMAT"))
 
     status.select_by_value("4")
 
-    search = driver.find_element_by_id("SearchBtn")
+    search = driver.find_element(By.ID,"SearchBtn")
 
-    ok = driver.find_element_by_id("GENERATE_REPORT")
+    ok = driver.find_element(By.ID,"GENERATE_REPORT")
 
     ok.click()
 

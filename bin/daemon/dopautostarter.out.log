@@ -1,0 +1,27 @@
+ Connected to Database
+[0mGET / [36m302 [0m49.341 ms - 56[0m
+[0mGET /login [36m304 [0m387.878 ms - -[0m
+[0mGET /javascripts/script.js [36m304 [0m28.053 ms - -[0m
+[0mGET /favicon.ico [33m404 [0m70.686 ms - 5116[0m
+[0mPOST /login [36m302 [0m753.538 ms - 46[0m
+undefined
+[0mGET / [32m200 [0m228.814 ms - 105048[0m
+[0mGET /javascripts/script.js [36m304 [0m5.008 ms - -[0m
+[
+  {
+    Name: 'REVATHY SANKAR',
+    Number: '3581291478',
+    Denomination: 3000,
+    CNumber: 'IKT0005821',
+    Rebate: 1
+  },
+  {
+    Name: 'GOURI KRISHNA',
+    Number: '3799414133',
+    Denomination: 2000,
+    CNumber: 'IHW0045521',
+    Rebate: 1
+  }
+]
+[0mGET /final [32m200 [0m251.999 ms - 11940[0m
+[0mGET /javascripts/script.js [36m304 [0m3.416 ms - -[0m

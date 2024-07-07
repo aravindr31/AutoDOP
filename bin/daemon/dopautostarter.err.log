@@ -1,0 +1,5 @@
+Sat, 08 Jul 2023 14:24:35 GMT express-session deprecated undefined resave option; provide resave option at ..\app.js:23:9
+Sat, 08 Jul 2023 14:24:35 GMT express-session deprecated undefined saveUninitialized option; provide saveUninitialized option at ..\app.js:23:9
+Handlebars: Access has been denied to resolve the property "status" because it is not an "own property" of its parent.
+You can add a runtime option to disable the check or this warning:
+See https://handlebarsjs.com/api-reference/runtime-options.html#options-to-control-prototype-access for details
