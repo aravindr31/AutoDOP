@@ -1,0 +1,85 @@
+---
+const { content } = Astro.props;
+---
+
+<div>
+  <div class="container mx-auto px-4">
+    <div class="flex flex-col mt-6">
+      <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+          <div class="shadow overflow-hidden sm:rounded-lg">
+            <table class="min-w-full text-sm text-gray-100">
+              <thead class="bg-gray-800 text-xs uppercase font-medium">
+                <tr>
+                  {
+                    Object.keys(content[0])
+                      .filter((item) => item != "hash")
+                      .map((item) => (
+                        <th
+                          scope="col"
+                          class="px-6 py-3 text-left tracking-wider"
+                        >
+                          {item == "Ref_Number"
+                            ? "#"
+                            : item == "_id"
+                              ? ""
+                              : item}
+                        </th>
+                      ))
+                  }
+                </tr>
+              </thead>
+              <tbody class="bg-gray-800">
+                {
+                  content.map((item: { [x: string]: string }) => (
+                    <tr class="bg-black bg-opacity-20">
+                      {Object.keys(item).map((value: string) => (
+                        <td class="px-6 py-4 whitespace-nowrap uppercase text-gray-300 hover:text-gray-100 cursor-default">
+                          {value == "_id" ? (
+                            <button
+                              data-id={item[value]}
+                              class="account_id flex justify-center items-center w-full bg-accent-dark text-white rounded-sm font-medium px-4 py-2 hover:bg-accent-light transition ease-in-out duration-150"
+                            >
+                              <span class="ml-2 text-white uppercase text-[13px] text-center font-medium tracking-[2px] transition-all duration-300 ease-in-out font-sans">
+                                Add
+                              </span>
+                            </button>
+                          ) : (
+                            item[value]
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const idButtons = document.querySelectorAll(".account_id");
+    idButtons.forEach((button) => {
+      button?.addEventListener("click", () => {
+        console.log("alerting");
+        alert(button.dataset.id);
+      });
+    });
+    // const form = document.querySelector("form");
+    // form?.addEventListener("submit", (event) => {
+    //   event.preventDefault();
+    //   const formData = new FormData(form);
+    //   const searchQuery = formData.get("search")?.toString();
+    //   if (!searchQuery || searchQuery?.length == 0) return;
+    //   const url = new URL("/search", window.location.origin);
+    //   console.log(url);
+    //   url.searchParams.set("q", searchQuery);
+    //   window.location.assign(url.toString());
+    // });
+  });
+</script>

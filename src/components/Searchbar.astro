@@ -1,0 +1,48 @@
+---
+export const prerender = true;
+const param = Astro.url.searchParams.get("q");
+---
+
+<div
+  class="flex rounded-sm shadow-cool-grey-400 shadow-xl overflow-hidden w-full lg:max-w-lg ml-auto font-[sans-serif] mx-4 my-2 lg:my-0"
+>
+  <form
+    class="flex flex-row w-full"
+    transition:name="search"
+    transition:animate="slide"
+  >
+    <input
+      type="text"
+      name="search"
+      value={param}
+      placeholder="Search"
+      autocomplete="false"
+      class="w-full outline-none bg-secondary text-white text-sm px-4 py-3"
+    />
+    <div
+      class="w-fit bg-accent-dark flex items-center justify-center transition-all duration-300 ease-in-out hover:bg-accent-light"
+    >
+      <input
+        value="Search"
+        type="submit"
+        class="mx-2 text-white uppercase text-[15px] text-center font-medium tracking-[2px] transition-all duration-300 ease-in-out hover:tracking-[2.5px]"
+      />
+    </div>
+  </form>
+</div>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const form = document.querySelector("form");
+    form?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const searchQuery = formData.get("search")?.toString();
+      if (!searchQuery || searchQuery?.length == 0) return;
+      const url = new URL("/search", window.location.origin);
+      console.log(url);
+      url.searchParams.set("q", searchQuery);
+      window.location.assign(url.toString());
+    });
+  });
+</script>

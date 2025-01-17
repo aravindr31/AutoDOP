@@ -1,0 +1,49 @@
+---
+export const prerender = true;
+const params = Astro.url.searchParams.get("q") || "";
+---
+
+<div
+  class="mt-16 rounded-sm relative top-1/2 transform -translate-y-1/2 mx-auto w-auto h-auto lg:w-[1026px] lg:h-[55px] flex flex-row"
+>
+  <form
+    class="w-full px-4 sm:px-20 flex flex-row"
+    transition:name="search"
+    transition:animate="slide"
+  >
+    <input
+      type="text"
+      name="search"
+      value={params}
+      placeholder="Search the Library"
+      autofocus
+      autocomplete="false"
+      class="w-full pl-[30px] pr-[20px] py-[20px] h-[55px] bg-secondary bg-no-repeat bg-left border-none text-white transition-all duration-500 ease-in-out outline-none focus:bg-secondary focus:bg-no-repeat focus:bg-right-[580px] shadow-xl shadow-cool"
+    />
+    <div
+      class="shadow-xl shadow-cool w-fit bg-accent-dark float-left h-[55px] flex items-center justify-center transition-all duration-300 ease-in-out hover:bg-accent-light"
+    >
+      <input
+        value="Search"
+        type="submit"
+        class="mx-4 text-white uppercase text-[15px] text-center font-medium tracking-[2px] transition-all duration-300 ease-in-out hover:tracking-[2.5px]"
+      />
+    </div>
+  </form>
+</div>
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const form = document.querySelector("form");
+    form?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      console.log(formData);
+      const searchQuery = formData.get("search")?.toString();
+      if (!searchQuery || searchQuery?.length == 0) return;
+      const url = new URL("/search", window.location.origin);
+      url.searchParams.set("q", searchQuery);
+      console.log(url.toString());
+      window.location.assign(url.toString());
+    });
+  });
+</script>
