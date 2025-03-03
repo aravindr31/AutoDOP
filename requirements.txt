@@ -1,0 +1,8 @@
+python_dotenv
+streamlit
+pymongo
+pyperclip
+bcrypt
+webdriver_manager
+selenium
+cryptography

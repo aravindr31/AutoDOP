@@ -1,0 +1,38 @@
+[global]
+disableWidgetStateDuplicationWarning = false
+showWarningOnDirectExecution = true
+
+[logger]
+level = "debug"
+messageFormat = "%(asctime)s %(message)s"
+
+[client]
+showErrorDetails = "full"
+toolbarMode = "viewer"
+showSidebarNavigation = true
+
+[runner]
+magicEnabled = true
+fastReruns = true
+enforceSerializableSessionState = false
+enumCoercion = "nameOnly"
+
+[server]
+folderWatchBlacklist = []
+fileWatcherType = "auto"
+cookieSecret = "a-random-key-appears-here"
+headless = false
+runOnSave = true
+port = 8501
+enableCORS = true
+enableXsrfProtection = true
+maxUploadSize = 200
+maxMessageSize = 200
+enableWebsocketCompression = false
+enableStaticServing = false
+disconnectedSessionTTL = 120
+
+[browser]
+serverAddress = "localhost"
+gatherUsageStats = false
+serverPort = 8501
