@@ -134,6 +134,29 @@ def get_data():
 def get_lists():
     return list(list_collection.find({}, {"_id": 1, "listName": 1, "active": 1, "accounts": 1}))
 
+def update_list_status(list_id, is_active):
+    # collections = get_db_collections()
+    try:
+        # If setting a list to active, first deactivate all other lists
+        if is_active:
+            list_collection.update_many(
+                {"_id": {"$ne": ObjectId(list_id)}},
+                {"$set": {"active": False}}
+            )
+        
+        # Update the specified list
+        list_collection.update_one(
+            {"_id": ObjectId(list_id)},
+            {"$set": {"active": is_active}}
+        )
+        
+        # Clear cache to reflect changes
+        get_lists.clear()
+        return True
+    except Exception as e:
+        st.error(f"Error updating list status: {e}")
+        return False
+
 def update_list(record_id, selected_list_id, selected_list_name):
     # Update the list document
     list_collection.update_one(
@@ -347,11 +370,17 @@ def purge_list(list_id):
     except Exception as e:
         st.error(f"Error purging list: {e}")
 
-def run_scraper_script(numbers, rebate, username, passwd):
+def run_scraper_script(username, passwd,lists_data):
     script_path = os.path.join(os.getcwd(), "scraper.py")
     try:
-        subprocess.run(["python3", script_path, numbers, rebate, username, passwd], check=True)
-        st.success("List generated successfully!")
+        # Capture the output with subprocess.run
+        result = subprocess.run(
+            ["python3", script_path, username, passwd, lists_data],
+            check=True,
+            text=True,
+            capture_output=True
+        )
+        return result
     except subprocess.CalledProcessError as e:
         st.error(f"Error running script: {e}")
 
@@ -396,25 +425,56 @@ def account_view():
     st.title("AutoDOP")
     
     # Get and cache lists
+    # Get and cache lists
     lists = get_lists()
     if not lists:
         st.warning("No lists available. Please create a list first.")
         return
-    
-    # Handle list selection
-    selected_list = st.session_state.get("selected_list", str(lists[0]["_id"]) if lists else None)
+
+    # Find the active list
+    active_list = next((lst for lst in lists if lst.get("active", False)), None)
+
+    # If no active list is found, use the first list or the one in session state
+    if not active_list:
+        selected_list = st.session_state.get("selected_list", str(lists[0]["_id"]) if lists else None)
+    else:
+        # Use the active list
+        selected_list = str(active_list["_id"])
+        # Update session state
+        st.session_state.selected_list = selected_list
+
     selected_list_data = next((l for l in lists if str(l["_id"]) == selected_list), None)
 
     # List selection UI
     st.write("### Select Active List")
     cols = st.columns(len(lists))
     for i, lst in enumerate(lists):
-        if cols[i].button(lst["listName"], key=f"list_{lst['_id']}"):
+        # Show currently active list with different styling
+        is_active = str(lst["_id"]) == selected_list
+        button_label = f"{lst['listName']}" if is_active else lst["listName"]
+        
+        if cols[i].button(button_label, key=f"list_{lst['_id']}", type="primary" if is_active else "secondary"):
+            # Update the previous active list to inactive
+            if selected_list_data and selected_list_data.get("active", False):
+                update_list_status(str(selected_list_data["_id"]), False)
+                
+            # Set the new list as active
+            update_list_status(str(lst["_id"]), True)
+            
+            # Update session state
             st.session_state.selected_list = str(lst["_id"])
             selected_list = str(lst["_id"])
             selected_list_data = lst
+            
+            # Refresh the page
+            st.rerun()
 
-    st.write(f"**Active List: {selected_list_data['listName'] if selected_list_data else 'None'}**")
+    # Display active list name with highlighting
+    if selected_list_data:
+        st.markdown(f"**Active List: <span style='color:#FF4B4B;'>{selected_list_data['listName']}</span>**", unsafe_allow_html=True)
+    else:
+        st.write("**Active List: None**")
+
     st.divider()
 
     # Search interface
@@ -438,15 +498,15 @@ def account_view():
     # Create a container for scrollable content
     with st.container():
         # Table headers
-        header_cols = st.columns([2, 3, 2, 3, 2, 2])
-        header_cols[0].write("**Number**")
-        header_cols[1].write("**Name**")
-        header_cols[2].write("**Denomination**")
-        header_cols[3].write("**CNumber**")
-        header_cols[4].write("**Action**")
-        header_cols[5].write("**Remove**")
+        # header_cols = st.columns([2, 3, 2, 3, 2, 2])
+        # header_cols[0].write("**Number**")
+        # header_cols[1].write("**Name**")
+        # header_cols[2].write("**Denomination**")
+        # header_cols[3].write("**CNumber**")
+        # header_cols[4].write("**Action**")
+        # header_cols[5].write("**Remove**")
         
-        st.divider()
+        # st.divider()
         
         # Table rows
         for row in data:
@@ -475,7 +535,62 @@ def list_view():
     if not lists:
         st.warning("No lists with accounts found.")
         return
+    
+    # Add a "Generate All Lists" button at the top
+    if st.button("📄 Generate All Lists", type="primary"):
+        with st.spinner("Preparing all lists for processing..."):
+            try:
+                user_creds = get_user_creds()
+                if not user_creds:
+                    st.error("User credentials not found")
+                else:
+                    # Prepare lists data
+                    lists_data = []
+                    for lst in lists:
+                        account_details = lst.get("account_details", [])
+                        numbers = [acc.get("Number", "") for acc in account_details]
+                        rebate_values = [acc.get("Rebate", 0) for acc in account_details]
+                        
+                        lists_data.append({
+                            "name": lst['listName'],
+                            "numbers": numbers,
+                            "rebate": rebate_values
+                        })
+                    
+                    # Convert to JSON for passing to the script
+                    lists_json = json.dumps(lists_data)
+                    
+                    # Get credentials
+                    decrypted_password = settings.decrypt_dop_passwd(fernet, user_creds[0]["UserInfo"]["DOP_password"])
+                    username = user_creds[0]["UserInfo"]["DOP_ID"]
+                    
+                    result = run_scraper_script(username, decrypted_password, lists_json)
+                    
+                    # Process results
+                    if result.stdout:
+                        try:
+                            results = json.loads(result.stdout)
+                            
+                            # Display results
+                            st.subheader("List Generation Results")
+                            for result_item in results:
+                                if result_item.get("status") == "success":
+                                    st.success(f"List '{result_item.get('list_name')}' generated successfully!")
+                                    with st.expander(f"Details for {result_item.get('list_name')}"):
+                                        st.json(result_item.get("details", {}))
+                                else:
+                                    st.error(f"Error processing list '{result_item.get('list_name')}': {result_item.get('details')}")
+                        except json.JSONDecodeError:
+                            st.code(result.stdout)
+                            st.warning("Could not parse script output as JSON")
+                    
+                    if result.stderr:
+                        st.error("Errors occurred during processing:")
+                        st.code(result.stderr)
+            except Exception as e:
+                st.error(f"Error generating lists: {str(e)}")
 
+    # The rest of your original code for displaying individual lists
     for lst in lists:
         # Get list data from session state or fetch it
         list_data = st.session_state.get(f"list_{lst['_id']}", lst)
@@ -530,19 +645,19 @@ def list_view():
 
             st.divider()
             
-            # Action buttons
+            # Action buttons - KEEP THIS ORIGINAL STRUCTURE
             with st.container():
                 center_cols = st.columns([1, 3, 1])
                 with center_cols[1]:
                     action_cols = st.columns(3)
                     
-                    # Numbers and rebate data for export
-                    numbers = ", ".join([acc.get("Number", "") for acc in account_details])
-                    rebate_data = ", ".join([str(acc.get("Rebate", 0)) for acc in account_details])
+                    # Numbers and rebate data
+                    numbers = [acc.get("Number", "") for acc in account_details]
+                    rebate_data = [acc.get("Rebate", 0) for acc in account_details]
                     
-                    # Copy numbers button
+                    # Copy numbers button (keep this from original code)
                     if action_cols[0].button("📋 Copy Numbers", key=f"copy_{lst['_id']}"):
-                        st.session_state[f"copied_text_{lst['_id']}"] = numbers
+                        st.session_state[f"copied_text_{lst['_id']}"] = ", ".join(numbers)
 
                     if f"copied_text_{lst['_id']}" in st.session_state:
                         move_to_clipboard = st.text_area(
@@ -554,26 +669,202 @@ def list_view():
                         pyperclip.copy(move_to_clipboard)
                         st.success("Numbers copied!")
 
-                    # Generate list button
+                    # MODIFY THE GENERATE LIST BUTTON TO USE NEW APPROACH
                     if action_cols[1].button("📄 Generate List", key=f"generate_{lst['_id']}"):
                         try:
                             user_creds = get_user_creds()
                             if user_creds:
-                                decrypted_password = settings.decrypt_dop_passwd(fernet,user_creds[0]["UserInfo"]["DOP_password"])
-                                run_scraper_script(
-                                    user_creds[0]["UserInfo"]["DOP_ID"], 
-                                    decrypted_password,
-                                    numbers, 
-                                    rebate_data, 
-                                )
+                                decrypted_password = settings.decrypt_dop_passwd(fernet, user_creds[0]["UserInfo"]["DOP_password"])
+                                
+                                # Prepare a single list for processing
+                                single_list_data = [{
+                                    "name": lst['listName'],
+                                    "numbers": numbers,
+                                    "rebate": rebate_data
+                                }]
+                                
+                                lists_json = json.dumps(single_list_data)
+                                
+                                result = run_scraper_script(user_creds[0]["UserInfo"]["DOP_ID"], decrypted_password, lists_json),
+
+                                if result.stdout:
+                                    st.success(f"List '{lst['listName']}' processed successfully!")
+                                    with st.expander("Script Output"):
+                                        st.code(result.stdout)
+                                
+                                if result.stderr:
+                                    st.error("Errors occurred:")
+                                    st.code(result.stderr)
                             else:
                                 st.error("User credentials not found")
                         except Exception as e:
                             st.error(f"Error generating list: {e}")
 
-                    # Purge list button
+                    # Purge list button (keep this from original code)
                     if action_cols[2].button("🗑 Purge List", key=f"purge_{lst['_id']}", type="primary"):
-                        purge_list(lst["_id"])
+                        purge_list(lst["_id"])  
+# def list_view():
+#     st.title("List View")
+#     lists = get_lists_with_accounts()
+
+#     if not lists:
+#         st.warning("No lists with accounts found.")
+#         return
+    
+#     # Add a "Generate All Lists" button at the top
+#     if st.button("📄 Generate All Lists", type="primary"):
+#         with st.spinner("Generating all lists..."):
+#             results = []
+#             user_creds = get_user_creds()
+#             if not user_creds:
+#                 st.error("User credentials not found")
+#             else:
+#                 decrypted_password = settings.decrypt_dop_passwd(fernet, user_creds[0]["UserInfo"]["DOP_password"])
+#                 for lst in lists:
+#                     try:
+#                         account_details = lst.get("account_details", [])
+#                         numbers = ", ".join([acc.get("Number", "") for acc in account_details])
+#                         rebate_data = ", ".join([str(acc.get("Rebate", 0)) for acc in account_details])
+                        
+#                         # Run the script and capture output
+#                         output = run_scraper_script(
+#                             lst['listName'],
+#                             user_creds[0]["UserInfo"]["DOP_ID"], 
+#                             decrypted_password,
+#                             numbers, 
+#                             rebate_data
+#                         )
+#                         results.append({"list": lst['listName'], "success": True, "output": output})
+#                     except Exception as e:
+#                         results.append({"list": lst['listName'], "success": False, "error": str(e)})
+                
+#                 # Display results
+#                 st.subheader("Generation Results")
+#                 for result in results:
+#                     if result["success"]:
+#                         st.success(f"List '{result['list']}' generated successfully!")
+#                         if result["output"]:
+#                             with st.expander(f"Output for {result['list']}"):
+#                                 st.code(result["output"])
+#                     else:
+#                         st.error(f"Error generating list '{result['list']}': {result['error']}")
+
+#     # The rest of your existing code for displaying individual lists
+#     # for lst in lists:
+#     #     # Get list data from session state or fetch it
+#     #     list_data = st.session_state.get(f"list_{lst['_id']}", lst)
+#     #     if not isinstance(list_data, dict):
+#     #         list_data = lst
+
+#         # ... rest of your existing code
+
+# # def list_view():
+# #     st.title("List View")
+# #     lists = get_lists_with_accounts()
+
+# #     if not lists:
+# #         st.warning("No lists with accounts found.")
+# #         return
+
+#     for lst in lists:
+#         # Get list data from session state or fetch it
+#         list_data = st.session_state.get(f"list_{lst['_id']}", lst)
+#         if not isinstance(list_data, dict):
+#             list_data = lst
+
+#         total_count = list_data.get("total_count", 0)
+#         total_amount = list_data.get("total_amount", 0)
+
+#         with st.expander(f"List: {list_data.get('listName', 'Unknown')}", expanded=True):
+#             account_details = list_data.get("account_details", [])
+#             st.markdown(f"**Total Accounts:** {total_count}  |  **Total Amount:** {total_amount}")
+
+#             if account_details:
+#                 # Table headers
+#                 header_cols = st.columns([2, 3, 2, 2, 1, 1, 2])
+#                 header_cols[0].write("**Number**")
+#                 header_cols[1].write("**Name**")
+#                 header_cols[2].write("**Denomination**")
+#                 header_cols[3].write("**CNumber**")
+#                 header_cols[5].write("**Rebate**")
+#                 header_cols[6].write("**Action**")
+
+                
+#                 st.divider()
+                
+#                 # Account rows
+#                 for account in account_details:
+#                     row_id_str = str(account.get("_id", ""))
+#                     rebate_value = account.get("Rebate", 0)
+
+#                     cols = st.columns([2, 3, 2, 2, 1, 1, 2])
+#                     cols[0].write(account.get("Number", ""))
+#                     cols[1].write(account.get("Name", ""))
+#                     cols[2].write(str(account.get("Denomination", "")))
+#                     # cols[3].write(str(account.get("CNumber", "")))
+
+#                     # Rebate controls
+#                     if cols[3].button("➖", key=f"dec_{row_id_str}"):
+#                         update_rebate(lst["_id"], row_id_str, max(rebate_value - 1, 0))
+                    
+#                     cols[4].write(rebate_value)
+
+#                     if cols[5].button("➕", key=f"inc_{row_id_str}"):
+#                         update_rebate(lst["_id"], row_id_str, rebate_value + 1)
+                    
+#                     if cols[6].button("Delete", key=f"del_{row_id_str}", type="primary"):
+#                         remove_from_list(row_id_str)
+#                         st.rerun()
+#             else:
+#                 st.write("List is empty.")
+
+#             st.divider()
+            
+#             # Action buttons
+#             with st.container():
+#                 center_cols = st.columns([1, 3, 1])
+#                 with center_cols[1]:
+#                     action_cols = st.columns(3)
+                    
+#                     # Numbers and rebate data for export
+#                     numbers = ", ".join([acc.get("Number", "") for acc in account_details])
+#                     rebate_data = ", ".join([str(acc.get("Rebate", 0)) for acc in account_details])
+                    
+#                     # Copy numbers button
+#                     if action_cols[0].button("📋 Copy Numbers", key=f"copy_{lst['_id']}"):
+#                         st.session_state[f"copied_text_{lst['_id']}"] = numbers
+
+#                     if f"copied_text_{lst['_id']}" in st.session_state:
+#                         move_to_clipboard = st.text_area(
+#                             "Copied Numbers",
+#                             st.session_state[f"copied_text_{lst['_id']}"],
+#                             disabled=True,
+#                             height=68
+#                         )
+#                         pyperclip.copy(move_to_clipboard)
+#                         st.success("Numbers copied!")
+
+#                     # Generate list button
+#                     if action_cols[1].button("📄 Generate List", key=f"generate_{lst['_id']}"):
+#                         try:
+#                             user_creds = get_user_creds()
+#                             if user_creds:
+#                                 decrypted_password = settings.decrypt_dop_passwd(fernet,user_creds[0]["UserInfo"]["DOP_password"])
+#                                 run_scraper_script(
+#                                     lst['listName'],
+#                                     user_creds[0]["UserInfo"]["DOP_ID"], 
+#                                     decrypted_password,
+#                                     numbers, 
+#                                     rebate_data, 
+#                                 )
+#                             else:
+#                                 st.error("User credentials not found")
+#                         except Exception as e:
+#                             st.error(f"Error generating list: {e}")
+
+#                     # Purge list button
+#                     if action_cols[2].button("🗑 Purge List", key=f"purge_{lst['_id']}", type="primary"):
+#                         purge_list(lst["_id"])
 
 def main():
 
@@ -585,7 +876,12 @@ def main():
 
     st.sidebar.title("Navigation")
 
-    page = st.sidebar.selectbox("📌 Go to", ["Account View","List View", "Change Password","Add New Account","Delete Account" ,"Logout"], key="user_settings")
+    # with st.sidebar.container():
+    #     st.markdown("### Navigation Options")
+    #     # st.divider()
+    #     page = st.selectbox("📌 Go to", ["Account View", "List View", "Change Password", "Add New Account", "Delete Account", "Logout"], key="user_settings")
+
+    page = st.sidebar.selectbox("Select", ["Account View","List View", "Change Password","Add New Account","Delete Account" ,"Logout"], key="user_settings")
 
     if page == "Change Password":
         settings.show_password_change_form(fernet,get_user_creds(),db.user_collection)
