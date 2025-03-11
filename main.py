@@ -534,7 +534,10 @@ def list_view():
 
     if not lists:
         st.warning("No lists with accounts found.")
+    
         return
+    # Sort lists by listName in ascending order
+    lists = sorted(lists, key=lambda x: x.get('listName', '').lower())
     
     # Add a "Generate All Lists" button at the top
     if st.button("📄 Generate All Lists", type="primary"):
@@ -703,168 +706,6 @@ def list_view():
                     # Purge list button (keep this from original code)
                     if action_cols[2].button("🗑 Purge List", key=f"purge_{lst['_id']}", type="primary"):
                         purge_list(lst["_id"])  
-# def list_view():
-#     st.title("List View")
-#     lists = get_lists_with_accounts()
-
-#     if not lists:
-#         st.warning("No lists with accounts found.")
-#         return
-    
-#     # Add a "Generate All Lists" button at the top
-#     if st.button("📄 Generate All Lists", type="primary"):
-#         with st.spinner("Generating all lists..."):
-#             results = []
-#             user_creds = get_user_creds()
-#             if not user_creds:
-#                 st.error("User credentials not found")
-#             else:
-#                 decrypted_password = settings.decrypt_dop_passwd(fernet, user_creds[0]["UserInfo"]["DOP_password"])
-#                 for lst in lists:
-#                     try:
-#                         account_details = lst.get("account_details", [])
-#                         numbers = ", ".join([acc.get("Number", "") for acc in account_details])
-#                         rebate_data = ", ".join([str(acc.get("Rebate", 0)) for acc in account_details])
-                        
-#                         # Run the script and capture output
-#                         output = run_scraper_script(
-#                             lst['listName'],
-#                             user_creds[0]["UserInfo"]["DOP_ID"], 
-#                             decrypted_password,
-#                             numbers, 
-#                             rebate_data
-#                         )
-#                         results.append({"list": lst['listName'], "success": True, "output": output})
-#                     except Exception as e:
-#                         results.append({"list": lst['listName'], "success": False, "error": str(e)})
-                
-#                 # Display results
-#                 st.subheader("Generation Results")
-#                 for result in results:
-#                     if result["success"]:
-#                         st.success(f"List '{result['list']}' generated successfully!")
-#                         if result["output"]:
-#                             with st.expander(f"Output for {result['list']}"):
-#                                 st.code(result["output"])
-#                     else:
-#                         st.error(f"Error generating list '{result['list']}': {result['error']}")
-
-#     # The rest of your existing code for displaying individual lists
-#     # for lst in lists:
-#     #     # Get list data from session state or fetch it
-#     #     list_data = st.session_state.get(f"list_{lst['_id']}", lst)
-#     #     if not isinstance(list_data, dict):
-#     #         list_data = lst
-
-#         # ... rest of your existing code
-
-# # def list_view():
-# #     st.title("List View")
-# #     lists = get_lists_with_accounts()
-
-# #     if not lists:
-# #         st.warning("No lists with accounts found.")
-# #         return
-
-#     for lst in lists:
-#         # Get list data from session state or fetch it
-#         list_data = st.session_state.get(f"list_{lst['_id']}", lst)
-#         if not isinstance(list_data, dict):
-#             list_data = lst
-
-#         total_count = list_data.get("total_count", 0)
-#         total_amount = list_data.get("total_amount", 0)
-
-#         with st.expander(f"List: {list_data.get('listName', 'Unknown')}", expanded=True):
-#             account_details = list_data.get("account_details", [])
-#             st.markdown(f"**Total Accounts:** {total_count}  |  **Total Amount:** {total_amount}")
-
-#             if account_details:
-#                 # Table headers
-#                 header_cols = st.columns([2, 3, 2, 2, 1, 1, 2])
-#                 header_cols[0].write("**Number**")
-#                 header_cols[1].write("**Name**")
-#                 header_cols[2].write("**Denomination**")
-#                 header_cols[3].write("**CNumber**")
-#                 header_cols[5].write("**Rebate**")
-#                 header_cols[6].write("**Action**")
-
-                
-#                 st.divider()
-                
-#                 # Account rows
-#                 for account in account_details:
-#                     row_id_str = str(account.get("_id", ""))
-#                     rebate_value = account.get("Rebate", 0)
-
-#                     cols = st.columns([2, 3, 2, 2, 1, 1, 2])
-#                     cols[0].write(account.get("Number", ""))
-#                     cols[1].write(account.get("Name", ""))
-#                     cols[2].write(str(account.get("Denomination", "")))
-#                     # cols[3].write(str(account.get("CNumber", "")))
-
-#                     # Rebate controls
-#                     if cols[3].button("➖", key=f"dec_{row_id_str}"):
-#                         update_rebate(lst["_id"], row_id_str, max(rebate_value - 1, 0))
-                    
-#                     cols[4].write(rebate_value)
-
-#                     if cols[5].button("➕", key=f"inc_{row_id_str}"):
-#                         update_rebate(lst["_id"], row_id_str, rebate_value + 1)
-                    
-#                     if cols[6].button("Delete", key=f"del_{row_id_str}", type="primary"):
-#                         remove_from_list(row_id_str)
-#                         st.rerun()
-#             else:
-#                 st.write("List is empty.")
-
-#             st.divider()
-            
-#             # Action buttons
-#             with st.container():
-#                 center_cols = st.columns([1, 3, 1])
-#                 with center_cols[1]:
-#                     action_cols = st.columns(3)
-                    
-#                     # Numbers and rebate data for export
-#                     numbers = ", ".join([acc.get("Number", "") for acc in account_details])
-#                     rebate_data = ", ".join([str(acc.get("Rebate", 0)) for acc in account_details])
-                    
-#                     # Copy numbers button
-#                     if action_cols[0].button("📋 Copy Numbers", key=f"copy_{lst['_id']}"):
-#                         st.session_state[f"copied_text_{lst['_id']}"] = numbers
-
-#                     if f"copied_text_{lst['_id']}" in st.session_state:
-#                         move_to_clipboard = st.text_area(
-#                             "Copied Numbers",
-#                             st.session_state[f"copied_text_{lst['_id']}"],
-#                             disabled=True,
-#                             height=68
-#                         )
-#                         pyperclip.copy(move_to_clipboard)
-#                         st.success("Numbers copied!")
-
-#                     # Generate list button
-#                     if action_cols[1].button("📄 Generate List", key=f"generate_{lst['_id']}"):
-#                         try:
-#                             user_creds = get_user_creds()
-#                             if user_creds:
-#                                 decrypted_password = settings.decrypt_dop_passwd(fernet,user_creds[0]["UserInfo"]["DOP_password"])
-#                                 run_scraper_script(
-#                                     lst['listName'],
-#                                     user_creds[0]["UserInfo"]["DOP_ID"], 
-#                                     decrypted_password,
-#                                     numbers, 
-#                                     rebate_data, 
-#                                 )
-#                             else:
-#                                 st.error("User credentials not found")
-#                         except Exception as e:
-#                             st.error(f"Error generating list: {e}")
-
-#                     # Purge list button
-#                     if action_cols[2].button("🗑 Purge List", key=f"purge_{lst['_id']}", type="primary"):
-#                         purge_list(lst["_id"])
 
 def main():
 
