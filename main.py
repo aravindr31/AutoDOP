@@ -476,6 +476,19 @@ def account_view():
         st.write("**Active List: None**")
 
     st.divider()
+        # Fetch all account data
+    data = get_data()
+
+    # Calculate metrics
+    total_accounts = len(data)
+    total_amount = sum(int(row.get("Denomination", 0)) for row in data if str(row.get("Denomination", "")).isdigit())
+
+    # Display metrics as cards
+    metric_cols = st.columns(2,border=True)
+    metric_cols[0].metric("Total Accounts", total_accounts)
+    metric_cols[1].metric("Total Amount", total_amount)
+
+    st.divider()
 
     # Search interface
     search_query = st.text_input("**Search Accounts**")
