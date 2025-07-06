@@ -722,11 +722,14 @@ def main():
     #     # st.divider()
     #     page = st.selectbox("📌 Go to", ["Account View", "List View", "Change Password", "Add New Account", "Delete Account", "Logout"], key="user_settings")
 
-    page = st.sidebar.selectbox("Select", ["Account View","List View", "Change Password","Add New Account","Delete Account" ,"Logout"], key="user_settings")
+    page = st.sidebar.selectbox("Select", ["Account View","List View", "Change Password","Add New Account","Update Account","Delete Account" ,"Logout"], key="user_settings")
 
     if page == "Change Password":
         settings.show_password_change_form(fernet,get_user_creds(),db.user_collection)
-        return  
+        return 
+    elif page == "Update Account":
+        settings.show_update_account_form(collection)
+        return 
     elif page == "Add New Account":
         settings.show_add_new_account_form(collection)
         return

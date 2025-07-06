@@ -5,7 +5,7 @@ def decrypt_dop_passwd(fernet,password):
     return fernet.decrypt(password).decode()
 
 def verify_password(fernet,password,current_password):
-    decrypted_passswd = fernet.decrypt(password)
+    decrypted_passswd = fernet.decrypt(password).decode()
 
     if decrypted_passswd == current_password:
         return True
@@ -13,10 +13,10 @@ def verify_password(fernet,password,current_password):
 
 def update_password(fernet,user_id,new_password,userCollection):
 
-    encrypted_passwd = fernet.encrypt(new_password)
+    encrypted_passwd = fernet.encrypt(new_password.encode())
     userCollection.update_one(
     {"_id": ObjectId(user_id)}, 
-    {"$set": {"UserInfo.DOP_password": encrypted_passwd}} 
+    {"$set": {"UserInfo.DOP_password": encrypted_passwd.decode()}} 
 )
     
     return True
@@ -109,3 +109,57 @@ def show_delete_account_form(collection):
                     st.success(f"✅ Account {account_number} deleted successfully!")
                 else:
                     st.warning(f"⚠ Account {account_number} not found!")
+
+def update_account(collection, account_number, updates):
+    """Update an existing account in MongoDB."""
+    result = collection.update_one(
+        {"Number": account_number},
+        {"$set": updates}
+    )
+    return result.modified_count > 0
+
+def show_update_account_form(collection):
+    st.title("✏️ Update Account")
+
+    # First, let user search for the account
+    account_number = st.text_input("🔍 Enter Account Number to Update")
+    
+    if account_number:
+        # Find the account
+        account = collection.find_one({"Number": account_number})
+        
+        if account:
+            st.success("✅ Account found! Update the details below:")
+            
+            with st.form("update_account_form"):
+                st.subheader("📝 Update Account Details")
+                
+                # Pre-fill the form with existing values
+                name = st.text_input("Full Name", value=account.get("Name", ""))
+                new_account_number = st.text_input("Account Number", value=account.get("Number", ""))
+                cnumber = st.text_input("CNumber", value=account.get("CNumber", ""))
+                ref_number = st.text_input("Ref Number", value=account.get("Ref_Number", ""))
+                denomination = st.text_input("Denomination", value=str(account.get("Denomination", "")))
+
+                submit = st.form_submit_button("Update Account")
+
+                if submit:
+                    if not name or not new_account_number or not cnumber or not ref_number or not denomination:
+                        st.error("❌ All fields are required!")
+                    elif not denomination.isdigit():
+                        st.error("❌ Denomination must be a number!")
+                    else:
+                        updates = {
+                            "Name": name,
+                            "Number": new_account_number,
+                            "CNumber": cnumber,
+                            "Ref_Number": ref_number,
+                            "Denomination": int(denomination)
+                        }
+                        
+                        if update_account(collection, account_number, updates):
+                            st.success("✅ Account updated successfully!")
+                        else:
+                            st.error("❌ Failed to update account. Please try again.")
+        else:
+            st.error("❌ Account not found!")
