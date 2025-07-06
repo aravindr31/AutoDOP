@@ -425,7 +425,6 @@ def account_view():
     st.title("AutoDOP")
     
     # Get and cache lists
-    # Get and cache lists
     lists = get_lists()
     if not lists:
         st.warning("No lists available. Please create a list first.")
@@ -462,6 +461,7 @@ def account_view():
             update_list_status(str(lst["_id"]), True)
             
             # Update session state
+            st
             st.session_state.selected_list = str(lst["_id"])
             selected_list = str(lst["_id"])
             selected_list_data = lst
